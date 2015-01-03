@@ -95,7 +95,19 @@ public:
 		int m_Min;
 		int m_Max;
 	} m_Latency;
+  
+  //v.py
+  char m_Hearts;
 
+	//Anticamper
+	int Anticamper();
+	bool m_SentCampMsg;
+	int m_CampTick;
+	vec2 m_CampPos;
+	//Chatprotect
+	int Chatprotect();
+	bool m_Chatprotected;
+	int m_ChatprotectTick;
 private:
 	CCharacter *m_pCharacter;
 	CGameContext *m_pGameServer;

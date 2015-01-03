@@ -12,14 +12,14 @@
 */
 class IGameController
 {
-	vec2 m_aaSpawnPoints[3][64];
-	int m_aNumSpawnPoints[3];
-
 	class CGameContext *m_pGameServer;
 	class IServer *m_pServer;
 
 protected:
-	CGameContext *GameServer() const { return m_pGameServer; }
+	vec2 m_aaSpawnPoints[3][64];
+	int m_aNumSpawnPoints[3];
+  
+  CGameContext *GameServer() const { return m_pGameServer; }
 	IServer *Server() const { return m_pServer; }
 
 	struct CSpawnEval

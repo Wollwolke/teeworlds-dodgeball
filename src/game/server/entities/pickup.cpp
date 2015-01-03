@@ -50,9 +50,10 @@ void CPickup::Tick()
 		{
 			case POWERUP_HEALTH:
 				if(pChr->IncreaseHealth(1))
-				{
+				{//v.py
+					pChr->GetPlayer()->m_Hearts++;
 					GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH);
-					RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
+					Destroy();
 				}
 				break;
 

@@ -57,12 +57,17 @@ public:
 	bool IncreaseArmor(int Amount);
 
 	bool GiveWeapon(int Weapon, int Ammo);
+	void RemoveWeapons();//v.py
+	void SetWeapon();
 	void GiveNinja();
 
 	void SetEmote(int Emote, int Tick);
 
 	bool IsAlive() const { return m_Alive; }
 	class CPlayer *GetPlayer() { return m_pPlayer; }
+
+	void Freeze(int Tick);
+	int m_FreezeTicks;
 
 private:
 	// player controlling this character
