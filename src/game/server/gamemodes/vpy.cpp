@@ -37,12 +37,10 @@ void CGameController_vPy::Tick() {
 }
 
 int CGameController_vPy::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon) {
-	if(!pKiller || Weapon == WEAPON_GAME)
+	if(!pKiller || Weapon == WEAPON_GAME || (Weapon == WEAPON_WORLD && pVictim->GetPlayer()->m_Chatprotected))
 		return 0;
 
-	if(Weapon == WEAPON_SELF)// suicide //TODO: you shouldn't lose heart when you fall
-		pVictim->IncreaseHealth(-g_Config.m_SvKillPenalty);
-	else if (!(Weapon == WEAPON_WORLD && pVictim->GetPlayer()->m_Chatprotected))//prevent being pushed off the world
+	if (Weapon != WEAPON_SELF && Weapon != WEAPON_WORLD)// Normal death
 	{
 		pVictim->IncreaseHealth(-1);
 		
@@ -59,7 +57,10 @@ int CGameController_vPy::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 
 		CPickup *H = new CPickup(&GameServer()->m_World, POWERUP_HEALTH);
 		H->m_Pos = pVictim->m_Pos;
+	} else {// Suicide
+		pVictim->IncreaseHealth(-g_Config.m_SvKillPenalty);
 	}
+
 	pVictim->GetPlayer()->m_Score = pVictim->m_Health;
 	return 0;
 
