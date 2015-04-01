@@ -43,7 +43,7 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 : CEntity(pWorld, CGameWorld::ENTTYPE_CHARACTER)
 {
 	m_ProximityRadius = ms_PhysSize;
-	//m_Health = 2;//v.py
+	m_Health = 2;//v.py //??
 	m_Armor = 0;
 	m_FreezeTicks = 0;
 }
@@ -55,7 +55,7 @@ void CCharacter::Reset()
 
 bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 {
-	m_Health = pPlayer->m_Hearts;
+	m_Health = pPlayer->m_Score;
 	m_EmoteStop = -1;
 	m_LastAction = -1;
 	m_LastNoAmmoSound = -1;
@@ -753,7 +753,7 @@ bool CCharacter::IncreaseHealth(int Amount)
 {
 	if(m_Health >= 10)
 		return false;
-	m_Health = clamp(m_Health+Amount, 0, 10);
+	m_Health = clamp(m_Health+Amount, 1, 10);//v.py
 	return true;
 }
 
@@ -886,7 +886,7 @@ void CCharacter::Snap(int SnappingClient)
 		(!g_Config.m_SvStrictSpectateMode && m_pPlayer->GetCID() == GameServer()->m_apPlayers[SnappingClient]->m_SpectatorID))
 	{
 		pCharacter->m_Health = m_Health;
-		pCharacter->m_Armor = m_Armor;
+		pCharacter->m_Armor = (m_FreezeTicks) ? (m_FreezeTicks/Server()->TickSpeed()) % 10 +1 : m_Armor;
 		if(m_aWeapons[m_ActiveWeapon].m_Ammo > 0)
 			pCharacter->m_AmmoCount = m_aWeapons[m_ActiveWeapon].m_Ammo;
 	}

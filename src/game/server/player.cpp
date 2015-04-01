@@ -21,9 +21,6 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_SpectatorID = SPEC_FREEVIEW;
 	m_LastActionTick = Server()->Tick();
 	m_TeamChangeTick = Server()->Tick();
-  
-  //v.py
-  m_Hearts = 1;
 }
 
 CPlayer::~CPlayer()
@@ -46,9 +43,12 @@ void CPlayer::Tick()
 		Anticamper();
 	//end zCatch
 	//begin v.py
-	if(m_PlayerFlags&PLAYERFLAG_CHATTING && g_Config.m_SvChatprotect != -1){
+	if(m_PlayerFlags&PLAYERFLAG_CHATTING && g_Config.m_SvChatprotect != -1)
+	{
 		Chatprotect();
-	} else {
+	}
+	else if (m_Chatprotected)
+	{
 		m_Chatprotected = false;
 		m_ChatprotectTick = -1;
 	}
@@ -361,18 +361,19 @@ int CPlayer::Anticamper()
 	return 0;
 }
 
-int CPlayer::Chatprotect()
+void CPlayer::Chatprotect()
 {
 	if(GameServer()->m_World.m_Paused || !m_pCharacter || m_Team == TEAM_SPECTATORS)
-		return 0;
+		return;
 
 	if(m_ChatprotectTick == -1) {
 		m_ChatprotectTick = Server()->Tick() + Server()->TickSpeed()*g_Config.m_SvChatprotect;
 	}
 
-	if(m_ChatprotectTick <= Server()->Tick())
+	if(m_ChatprotectTick <= Server()->Tick() && !m_Chatprotected)
 	{
 		m_Chatprotected = true;
+    GameServer()->SendBroadcast("Chatprotect enabled", m_ClientID);
 	}
-	return 0;
+	return;
 }

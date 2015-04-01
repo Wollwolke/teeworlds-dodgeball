@@ -544,6 +544,12 @@ void CGameContext::OnClientEnter(int ClientID)
 	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 	m_VoteUpdate = true;
+	// begin v.py
+	SendChatTarget(ClientID, "You're a vampire! Steal other players' life.");
+	SendChatTarget(ClientID, "Type /help to learn how to play or /about for more information.");
+	Server()->SetClientScore(ClientID, 1);
+//	m_apPlayers[ClientID]->GetCharacter()->IncreaseHealth(1);//Maybe Character doesn't exist yet?
+	// begin v.py
 }
 
 void CGameContext::OnClientConnected(int ClientID)
@@ -653,7 +659,17 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			pPlayer->m_LastChat = Server()->Tick();
 
-			SendChat(ClientID, Team, pMsg->m_pMessage);
+      if(!str_comp("/help", pMsg->m_pMessage)){
+        SendChatTarget(ClientID, "The goal is to fill your health bar.");
+        SendChatTarget(ClientID, "Kill other player to make them drop hearts, then steal their life!");
+      }
+      else if(!str_comp("/about", pMsg->m_pMessage))
+			{
+				char Buf[128];
+				str_format(Buf, sizeof(Buf), "v.py version %s by Getkey aka PTI|July. Some code is from Teetime's zCatch.", VPY_VERSION);
+				SendChatTarget(ClientID, Buf);
+			} else
+				SendChat(ClientID, Team, pMsg->m_pMessage);
 		}
 		else if(MsgID == NETMSGTYPE_CL_CALLVOTE)
 		{

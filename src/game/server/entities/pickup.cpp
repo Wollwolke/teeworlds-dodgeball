@@ -51,7 +51,7 @@ void CPickup::Tick()
 			case POWERUP_HEALTH:
 				if(pChr->IncreaseHealth(1))
 				{//v.py
-					pChr->GetPlayer()->m_Hearts++;
+					pChr->GetPlayer()->m_Score++;
 					GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH);
 					Destroy();
 				}

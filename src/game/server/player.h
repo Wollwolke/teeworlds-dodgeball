@@ -95,9 +95,6 @@ public:
 		int m_Min;
 		int m_Max;
 	} m_Latency;
-  
-  //v.py
-  char m_Hearts;
 
 	//Anticamper
 	int Anticamper();
@@ -105,7 +102,7 @@ public:
 	int m_CampTick;
 	vec2 m_CampPos;
 	//Chatprotect
-	int Chatprotect();
+	void Chatprotect();
 	bool m_Chatprotected;
 	int m_ChatprotectTick;
 private:

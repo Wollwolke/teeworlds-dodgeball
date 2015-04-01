@@ -8,16 +8,15 @@
 // todo a modification with their base as well.
 class CGameController_vPy : public IGameController
 {
-  int m_OldMode;
-  void ChangeMode(class CCharacter *pChr);
+	int m_OldMode;
+	void ChangeMode(class CCharacter *pChr);
 public:
 	CGameController_vPy(class CGameContext *pGameServer);
 	virtual void Tick();
 	// add more virtual functions here if you wish
-  virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int WeaponID);
-  virtual void OnCharacterSpawn(class CCharacter *pChr);
-  virtual bool OnEntity(int Index, vec2 Pos);
-  virtual void DoWincheck();
-  virtual void EndRound();
+	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int WeaponID);
+	virtual void OnCharacterSpawn(class CCharacter *pChr);
+	virtual bool OnEntity(int Index, vec2 Pos);
+	virtual void DoWincheck();
 };
 #endif

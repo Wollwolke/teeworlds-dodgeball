@@ -10,28 +10,29 @@
 CGameController_vPy::CGameController_vPy(class CGameContext *pGameServer) : IGameController(pGameServer)
 {
 	m_pGameType = "v.py";
-  m_OldMode = g_Config.m_SvMode;
+	m_OldMode = g_Config.m_SvMode;
 }
 
 void CGameController_vPy::Tick() {
 
 	IGameController::Tick();
-  
-  if(m_OldMode != g_Config.m_SvMode)
+
+	if(m_OldMode != g_Config.m_SvMode)
 	{
-    //change everybody's weapon
-    for(int i = 0; i < MAX_CLIENTS; i++)
-    {
-      if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetCharacter())
-      {
+		//change everybody's weapon
+		for(int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetCharacter())
+			{
 				GameServer()->m_apPlayers[i]->GetCharacter()->RemoveWeapons();
-        ChangeMode(GameServer()->m_apPlayers[i]->GetCharacter());
-        if(g_Config.m_SvMode != 5) {//not ninja
-          GameServer()->m_apPlayers[i]->GetCharacter()->SetWeapon();
-        }
-      }
-    }
-    m_OldMode = g_Config.m_SvMode;
+				ChangeMode(GameServer()->m_apPlayers[i]->GetCharacter());
+				if(g_Config.m_SvMode != 5)
+				{//not ninja
+					GameServer()->m_apPlayers[i]->GetCharacter()->SetWeapon();
+				}
+			}
+		}
+		m_OldMode = g_Config.m_SvMode;
 	}
 }
 
@@ -39,38 +40,34 @@ int CGameController_vPy::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 	if(!pKiller || Weapon == WEAPON_GAME)
 		return 0;
 
-	if(Weapon == WEAPON_SELF)// suicide
-		pVictim->GetPlayer()->m_Score -= g_Config.m_SvKillPenalty;
+	if(Weapon == WEAPON_SELF)// suicide //TODO: you shouldn't lose heart when you fall
+		pVictim->IncreaseHealth(-g_Config.m_SvKillPenalty);
 	else if (!(Weapon == WEAPON_WORLD && pVictim->GetPlayer()->m_Chatprotected))//prevent being pushed off the world
 	{
-		pVictim->GetPlayer()->m_Hearts--;
+		pVictim->IncreaseHealth(-1);
 		
 		if(g_Config.m_SvChatkillPenalty != 0 && pVictim->GetPlayer()->m_Chatprotected) {//chatkill
-			pKiller->m_Score -= g_Config.m_SvChatkillPenalty;
+			pKiller->GetCharacter()->IncreaseHealth(-g_Config.m_SvChatkillPenalty);
 
 			char Buf[23];
 			str_format(Buf, sizeof(Buf), "Chatkill: -%d point(s)", g_Config.m_SvChatkillPenalty);
 			GameServer()->SendBroadcast(Buf, pKiller->GetCID());
 
-		} else {
+		}/* else {
 			pKiller->m_Score++;
-		}
+		}*/
 
-    CPickup *H = new CPickup(&GameServer()->m_World, POWERUP_HEALTH);
+		CPickup *H = new CPickup(&GameServer()->m_World, POWERUP_HEALTH);
 		H->m_Pos = pVictim->m_Pos;
-
-		if(pVictim->GetPlayer()->m_Hearts < 1) {
-      pVictim->GetPlayer()->m_Hearts = 1;
-		}
 	}
-
+	pVictim->GetPlayer()->m_Score = pVictim->m_Health;
 	return 0;
 
 }
 
 void CGameController_vPy::ChangeMode(class CCharacter *pChr)
 {
-  switch(g_Config.m_SvMode)
+	switch(g_Config.m_SvMode)
 	{
 	case 1: /* Instagib - Only Riffle */
 		pChr->GiveWeapon(WEAPON_RIFLE, -1);
@@ -98,6 +95,12 @@ void CGameController_vPy::OnCharacterSpawn(class CCharacter *pChr)
 {
 	// give default weapons
 	ChangeMode(pChr);
+	if(pChr->m_Health == 0)//only appen on connection
+	{//shitty hack
+		pChr->m_Health = 1;
+		pChr->GetPlayer()->m_Score = 1;
+	}
+
 }
 
 bool CGameController_vPy::OnEntity(int Index, vec2 Pos)
@@ -115,27 +118,16 @@ bool CGameController_vPy::OnEntity(int Index, vec2 Pos)
 void CGameController_vPy::DoWincheck()
 {
 	if(m_GameOverTick == -1 && !m_Warmup && !GameServer()->m_World.m_ResetRequested)
-  {
-    for(int i = 0; i < MAX_CLIENTS; i++)
-    {
-      if(GameServer()->m_apPlayers[i])
-      {
-        if(GameServer()->m_apPlayers[i]->m_Hearts == 10)
-        {
-          EndRound();
-        }
-      }
-    }
+	{
+		for(int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if(GameServer()->m_apPlayers[i])
+			{
+				if(GameServer()->m_apPlayers[i]->m_Score == 10)
+				{
+					IGameController::EndRound();//usual EndRound
+				}
+			}
+		}
 	}
-}
-
-void CGameController_vPy::EndRound()
-{
-	for(int i = 0; i < MAX_CLIENTS; i++) {
-		if(GameServer()->m_apPlayers[i])
-    {
-      GameServer()->m_apPlayers[i]->m_Hearts = 1;
-    }
-	}
-  IGameController::EndRound();//usual EndRound
 }

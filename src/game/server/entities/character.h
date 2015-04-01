@@ -68,6 +68,8 @@ public:
 
 	void Freeze(int Tick);
 	int m_FreezeTicks;
+  
+  int m_Health;//v.py
 
 private:
 	// player controlling this character
@@ -116,7 +118,6 @@ private:
 
 	int m_DamageTakenTick;
 
-	int m_Health;
 	int m_Armor;
 
 	// ninja
