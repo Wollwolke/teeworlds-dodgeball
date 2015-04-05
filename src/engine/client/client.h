@@ -51,36 +51,6 @@ public:
 };
 
 
-class CFileCollection
-{
-	enum
-	{
-		MAX_ENTRIES=1000,
-		TIMESTAMP_LENGTH=20,	// _YYYY-MM-DD_HH-MM-SS
-	};
-
-	int64 m_aTimestamps[MAX_ENTRIES];
-	int m_NumTimestamps;
-	int m_MaxEntries;
-	char m_aFileDesc[128];
-	int m_FileDescLength;
-	char m_aFileExt[32];
-	int m_FileExtLength;
-	char m_aPath[512];
-	IStorage *m_pStorage;
-
-	bool IsFilenameValid(const char *pFilename);
-	int64 ExtractTimestamp(const char *pTimestring);
-	void BuildTimestring(int64 Timestamp, char *pTimestring);
-
-public:
-	void Init(IStorage *pStorage, const char *pPath, const char *pFileDesc, const char *pFileExt, int MaxEntries);
-	void AddEntry(int64 Timestamp);
-
-	static int FilelistCallback(const char *pFilename, int IsDir, int StorageType, void *pUser);
-};
-
-
 class CClient : public IClient, public CDemoPlayer::IListner
 {
 	// needed interfaces
@@ -102,6 +72,7 @@ class CClient : public IClient, public CDemoPlayer::IListner
 	};
 
 	class CNetClient m_NetClient;
+	class CNetClient m_ContactClient;
 	class CDemoPlayer m_DemoPlayer;
 	class CDemoRecorder m_DemoRecorder;
 	class CServerBrowser m_ServerBrowser;
@@ -114,11 +85,13 @@ class CClient : public IClient, public CDemoPlayer::IListner
 	int64 m_LocalStartTime;
 
 	int m_DebugFont;
-	float m_FrameTimeLow;
-	float m_FrameTimeHigh;
-	int m_Frames;
+	
+	int64 m_LastRenderTime;
+	float m_RenderFrameTimeLow;
+	float m_RenderFrameTimeHigh;
+	int m_RenderFrames;
+
 	NETADDR m_ServerAddress;
-	NETADDR m_BindAddr;
 	int m_WindowMustRefocus;
 	int m_SnapCrcErrors;
 	bool m_AutoScreenshotRecycle;
@@ -129,6 +102,7 @@ class CClient : public IClient, public CDemoPlayer::IListner
 	int m_AckGameTick;
 	int m_CurrentRecvTick;
 	int m_RconAuthed;
+	int m_UseTempRconCommands;
 
 	// version-checking
 	char m_aVersionStr[10];
@@ -202,6 +176,10 @@ class CClient : public IClient, public CDemoPlayer::IListner
 		class CHostLookup m_VersionServeraddr;
 	} m_VersionInfo;
 
+	volatile int m_GfxState;
+	static void GraphicsThreadProxy(void *pThis) { ((CClient*)pThis)->GraphicsThread(); }
+	void GraphicsThread();
+
 public:
 	IEngine *Engine() { return m_pEngine; }
 	IEngineGraphics *Graphics() { return m_pGraphics; }
@@ -221,7 +199,8 @@ public:
 	void SendEnterGame();
 	void SendReady();
 
-	virtual bool RconAuthed();
+	virtual bool RconAuthed() { return m_RconAuthed != 0; }
+	virtual bool UseTempRconCommands() { return m_UseTempRconCommands != 0; }
 	void RconAuth(const char *pName, const char *pPassword);
 	virtual void Rcon(const char *pCmd);
 
@@ -309,6 +288,7 @@ public:
 	static void Con_Play(IConsole::IResult *pResult, void *pUserData);
 	static void Con_Record(IConsole::IResult *pResult, void *pUserData);
 	static void Con_StopRecord(IConsole::IResult *pResult, void *pUserData);
+	static void Con_AddDemoMarker(IConsole::IResult *pResult, void *pUserData);
 	static void ConchainServerBrowserUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
 	void RegisterCommands();
@@ -317,6 +297,7 @@ public:
 	void DemoRecorder_Start(const char *pFilename, bool WithTimestamp);
 	void DemoRecorder_HandleAutoStart();
 	void DemoRecorder_Stop();
+	void DemoRecorder_AddDemoMarker();
 
 	void AutoScreenshot_Start();
 	void AutoScreenshot_Cleanup();

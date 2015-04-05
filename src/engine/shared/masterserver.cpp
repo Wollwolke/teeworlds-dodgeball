@@ -19,53 +19,59 @@ public:
 		char m_aHostname[128];
 		NETADDR m_Addr;
 		bool m_Valid;
-		
+
 		CHostLookup m_Lookup;
-	} ;
+	};
+
+	enum
+	{
+		STATE_INIT,
+		STATE_UPDATE,
+		STATE_READY,
+	};
 
 	CMasterInfo m_aMasterServers[MAX_MASTERSERVERS];
-	int m_NeedsUpdate;
+	int m_State;
 	IEngine *m_pEngine;
 	IStorage *m_pStorage;
-	
+
 	CMasterServer()
 	{
 		SetDefault();
-		m_NeedsUpdate = -1;
+		m_State = STATE_INIT;
 		m_pEngine = 0;
+		m_pStorage = 0;
 	}
 
 	virtual int RefreshAddresses(int Nettype)
 	{
-		int i;
-		
-		if(m_NeedsUpdate != -1)
-			return 0;
-		
+		if(m_State != STATE_INIT && m_State != STATE_READY)
+			return -1;
+
 		dbg_msg("engine/mastersrv", "refreshing master server addresses");
 
 		// add lookup jobs
-		for(i = 0; i < MAX_MASTERSERVERS; i++)
+		for(int i = 0; i < MAX_MASTERSERVERS; i++)
 		{
 			m_pEngine->HostLookup(&m_aMasterServers[i].m_Lookup, m_aMasterServers[i].m_aHostname, Nettype);
 			m_aMasterServers[i].m_Valid = false;
 		}
-		
-		m_NeedsUpdate = 1;
+
+		m_State = STATE_UPDATE;
 		return 0;
 	}
 
 	virtual void Update()
 	{
 		// check if we need to update
-		if(m_NeedsUpdate != 1)
+		if(m_State != STATE_UPDATE)
 			return;
-		m_NeedsUpdate = 0;
-		
+		m_State = STATE_READY;
+
 		for(int i = 0; i < MAX_MASTERSERVERS; i++)
 		{
 			if(m_aMasterServers[i].m_Lookup.m_Job.Status() != CJob::STATE_DONE)
-				m_NeedsUpdate = 1;
+				m_State = STATE_UPDATE;
 			else
 			{
 				if(m_aMasterServers[i].m_Lookup.m_Job.Result() == 0)
@@ -78,8 +84,8 @@ public:
 					m_aMasterServers[i].m_Valid = false;
 			}
 		}
-		
-		if(!m_NeedsUpdate)
+
+		if(m_State == STATE_READY)
 		{
 			dbg_msg("engine/mastersrv", "saving addresses");
 			Save();
@@ -88,15 +94,15 @@ public:
 
 	virtual int IsRefreshing()
 	{
-		return m_NeedsUpdate;
+		return m_State != STATE_READY;
 	}
 
-	virtual NETADDR GetAddr(int Index) 
+	virtual NETADDR GetAddr(int Index)
 	{
 		return m_aMasterServers[Index].m_Addr;
 	}
 
-	virtual const char *GetName(int Index) 
+	virtual const char *GetName(int Index)
 	{
 		return m_aMasterServers[Index].m_aHostname;
 	}
@@ -104,16 +110,6 @@ public:
 	virtual bool IsValid(int Index)
 	{
 		return m_aMasterServers[Index].m_Valid;
-	}
-
-	virtual void DumpServers()
-	{
-		for(int i = 0; i < MAX_MASTERSERVERS; i++)
-		{
-			char aAddrStr[NETADDR_MAXSTRSIZE];
-			net_addr_str(&m_aMasterServers[i].m_Addr, aAddrStr, sizeof(aAddrStr));
-			dbg_msg("mastersrv", "#%d = %s", i, aAddrStr);
-		}
 	}
 
 	virtual void Init()
@@ -131,17 +127,15 @@ public:
 
 	virtual int Load()
 	{
-		CLineReader LineReader;
-		IOHANDLE File;
-		int Count = 0;
 		if(!m_pStorage)
 			return -1;
-		
+
 		// try to open file
-		File = m_pStorage->OpenFile("masters.cfg", IOFLAG_READ, IStorage::TYPE_SAVE);
+		IOHANDLE File = m_pStorage->OpenFile("masters.cfg", IOFLAG_READ, IStorage::TYPE_SAVE);
 		if(!File)
 			return -1;
-		
+
+		CLineReader LineReader;
 		LineReader.Init(File);
 		while(1)
 		{
@@ -152,47 +146,61 @@ public:
 
 			// parse line
 			char aAddrStr[NETADDR_MAXSTRSIZE];
-			if(sscanf(pLine, "%s %s", Info.m_aHostname, aAddrStr) == 2 && net_addr_from_str(&Info.m_Addr, aAddrStr) == 0)
+			if(sscanf(pLine, "%127s %47s", Info.m_aHostname, aAddrStr) == 2 && net_addr_from_str(&Info.m_Addr, aAddrStr) == 0)
 			{
 				Info.m_Addr.port = 8300;
-				if(Count != MAX_MASTERSERVERS)
+				bool Added = false;
+				for(int i = 0; i < MAX_MASTERSERVERS; ++i)
+					if(str_comp(m_aMasterServers[i].m_aHostname, Info.m_aHostname) == 0)
+					{
+						m_aMasterServers[i] = Info;
+						Added = true;
+						break;
+					}
+
+				if(!Added)
 				{
-					m_aMasterServers[Count] = Info;
-					Count++;
+					for(int i = 0; i < MAX_MASTERSERVERS; ++i)
+						if(m_aMasterServers[i].m_Addr.type == NETTYPE_INVALID)
+						{
+							m_aMasterServers[i] = Info;
+							Added = true;
+							break;
+						}
 				}
-				//else
-				//	dbg_msg("engine/mastersrv", "warning: skipped master server '%s' due to limit of %d", pLine, MAX_MASTERSERVERS);
+
+				if(!Added)
+					break;
 			}
-			//else
-			//	dbg_msg("engine/mastersrv", "warning: couldn't parse master server '%s'", pLine);
 		}
-		
+
 		io_close(File);
 		return 0;
 	}
 
 	virtual int Save()
 	{
-		IOHANDLE File;
-
 		if(!m_pStorage)
 			return -1;
-			
+
 		// try to open file
-		File = m_pStorage->OpenFile("masters.cfg", IOFLAG_WRITE, IStorage::TYPE_SAVE);
+		IOHANDLE File = m_pStorage->OpenFile("masters.cfg", IOFLAG_WRITE, IStorage::TYPE_SAVE);
 		if(!File)
 			return -1;
 
 		for(int i = 0; i < MAX_MASTERSERVERS; i++)
 		{
 			char aAddrStr[NETADDR_MAXSTRSIZE];
-			net_addr_str(&m_aMasterServers[i].m_Addr, aAddrStr, sizeof(aAddrStr));
-			char aBuf[1024];
-			str_format(aBuf, sizeof(aBuf), "%s %s\n", m_aMasterServers[i].m_aHostname, aAddrStr);
-				
+			if(m_aMasterServers[i].m_Addr.type != NETTYPE_INVALID)
+				net_addr_str(&m_aMasterServers[i].m_Addr, aAddrStr, sizeof(aAddrStr), true);
+			else
+				aAddrStr[0] = 0;
+			char aBuf[256];
+			str_format(aBuf, sizeof(aBuf), "%s %s", m_aMasterServers[i].m_aHostname, aAddrStr);
 			io_write(File, aBuf, str_length(aBuf));
+			io_write_newline(File);
 		}
-		
+
 		io_close(File);
 		return 0;
 	}

@@ -14,10 +14,10 @@ class IGameController
 {
 	vec2 m_aaSpawnPoints[3][64];
 	int m_aNumSpawnPoints[3];
-	
+
 	class CGameContext *m_pGameServer;
 	class IServer *m_pServer;
-	
+
 protected:
 	CGameContext *GameServer() const { return m_pGameServer; }
 	IServer *Server() const { return m_pServer; }
@@ -30,7 +30,7 @@ protected:
 			m_FriendlyTeam = -1;
 			m_Pos = vec2(100,100);
 		}
-			
+
 		vec2 m_Pos;
 		bool m_Got;
 		int m_FriendlyTeam;
@@ -39,28 +39,26 @@ protected:
 
 	float EvaluateSpawnPos(CSpawnEval *pEval, vec2 Pos);
 	void EvaluateSpawnType(CSpawnEval *pEval, int Type);
-	void FindFreeSpawn(CSpawnEval *pEval, int Type);
 	bool EvaluateSpawn(class CPlayer *pP, vec2 *pPos);
 
 	void CycleMap();
 	void ResetGame();
-	
+
 	char m_aMapWish[128];
 
-	
+
 	int m_RoundStartTick;
 	int m_GameOverTick;
 	int m_SuddenDeath;
-	
 
-	
+
 	int m_Warmup;
 	int m_RoundCount;
-	
+
 	int m_GameFlags;
 	int m_UnbalancedTick;
 	bool m_ForceBalanced;
-	
+
 public:
     
 	int m_aTeamscore[2]; //Need this to be public for use in Character class upon scoring with hook ball. Accessor is probably a better solution.
@@ -68,59 +66,59 @@ public:
 	const char *m_pGameType;
 
 	bool IsTeamplay() const;
-	
+	bool IsGameOver() const { return m_GameOverTick != -1; }
+
 	IGameController(class CGameContext *pGameServer);
 	virtual ~IGameController();
 
-	void DoTeamScoreWincheck();
-	void DoPlayerScoreWincheck();
-	
+	virtual void DoWincheck();
+
 	void DoWarmup(int Seconds);
-	
+
 	void StartRound();
 	void EndRound();
 	void ChangeMap(const char *pToMap);
-	
+
 	bool IsFriendlyFire(int ClientID1, int ClientID2);
-	
+
 	bool IsForceBalanced();
 
 	/*
-	
-	*/	
+
+	*/
 	virtual bool CanBeMovedOnBalance(int ClientID);
 
 	virtual void Tick();
-	
+
 	virtual void Snap(int SnappingClient);
-	
+
 	/*
 		Function: on_entity
 			Called when the map is loaded to process an entity
 			in the map.
-			
+
 		Arguments:
 			index - Entity index.
 			pos - Where the entity is located in the world.
-			
+
 		Returns:
 			bool?
 	*/
 	virtual bool OnEntity(int Index, vec2 Pos);
-	
+
 	/*
 		Function: on_CCharacter_spawn
 			Called when a CCharacter spawns into the game world.
-			
+
 		Arguments:
 			chr - The CCharacter that was spawned.
 	*/
 	virtual void OnCharacterSpawn(class CCharacter *pChr);
-	
+
 	/*
 		Function: on_CCharacter_death
 			Called when a CCharacter in the world dies.
-			
+
 		Arguments:
 			victim - The CCharacter that died.
 			killer - The player that killed it.
@@ -136,8 +134,8 @@ public:
 	virtual bool CanSpawn(int Team, vec2 *pPos);
 
 	/*
-	
-	*/	
+
+	*/
 	virtual const char *GetTeamName(int Team);
 	virtual int GetAutoTeam(int NotThisID);
 	virtual bool CanJoinTeam(int Team, int NotThisID);

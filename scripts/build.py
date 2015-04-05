@@ -9,9 +9,10 @@ elif sys.version_info[0] == 3:
 match = re.search('(.*)/', sys.argv[0])
 if match != None:
 	os.chdir(match.group(1))
+os.chdir('../')
 
 url_bam = "http://github.com/matricks/bam/zipball/master"
-url_teeworlds = "http://github.com/oy/teeworlds/zipball/master"
+url_teeworlds = "http://github.com/teeworlds/teeworlds/zipball/master"
 release_type = "server_release client_release"
 
 arguments = OptionParser()
@@ -76,7 +77,7 @@ else:
 print("%s-%s-%s" % (name, version_teeworlds, platform))
 
 root_dir = os.getcwd() + os.sep
-work_dir = root_dir + "work"
+work_dir = root_dir + "scripts/work"
 
 def fetch_file(url):
 	try:
@@ -128,7 +129,7 @@ def bail(reason):
 
 def clean():
 	print("*** cleaning ***")
-	try: shutil.rmtree("work")
+	try: shutil.rmtree(work_dir)
 	except: pass
 
 def file_exists(file):
@@ -150,7 +151,7 @@ if flag_clean:
 	clean()
 
 # make dir
-try: os.mkdir("work")
+try: os.mkdir(work_dir)
 except: pass
 
 # change dir

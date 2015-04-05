@@ -39,7 +39,7 @@ bool CTuningParams::Get(const char *pName, float *pValue)
 	for(int i = 0; i < Num(); i++)
 		if(str_comp_nocase(pName, m_apNames[i]) == 0)
 			return Get(i, pValue);
-	
+
 	return false;
 }
 
@@ -78,22 +78,22 @@ void CCharacterCore::Tick(bool UseInput)
 {
 	float PhysSize = 28.0f;
 	m_TriggeredEvents = 0;
-	
+
 	// get ground state
 	bool Grounded = false;
 	if(m_pCollision->CheckPoint(m_Pos.x+PhysSize/2, m_Pos.y+PhysSize/2+5))
 		Grounded = true;
 	if(m_pCollision->CheckPoint(m_Pos.x-PhysSize/2, m_Pos.y+PhysSize/2+5))
 		Grounded = true;
-	
+
 	vec2 TargetDirection = normalize(vec2(m_Input.m_TargetX, m_Input.m_TargetY));
 
 	m_Vel.y += m_pWorld->m_Tuning.m_Gravity;
-	
+
 	float MaxSpeed = Grounded ? m_pWorld->m_Tuning.m_GroundControlSpeed : m_pWorld->m_Tuning.m_AirControlSpeed;
 	float Accel = Grounded ? m_pWorld->m_Tuning.m_GroundControlAccel : m_pWorld->m_Tuning.m_AirControlAccel;
 	float Friction = Grounded ? m_pWorld->m_Tuning.m_GroundFriction : m_pWorld->m_Tuning.m_AirFriction;
-	
+
 	// handle input
 	if(UseInput)
 	{
@@ -105,10 +105,10 @@ void CCharacterCore::Tick(bool UseInput)
 			a = atanf((float)m_Input.m_TargetY);
 		else
 			a = atanf((float)m_Input.m_TargetY/(float)m_Input.m_TargetX);
-			
+
 		if(m_Input.m_TargetX < 0)
 			a = a+pi;
-			
+
 		m_Angle = (int)(a*256.0f);
 
 		// handle jump
@@ -144,16 +144,16 @@ void CCharacterCore::Tick(bool UseInput)
 				m_HookedPlayer = -1;
 				m_HookTick = 0;
 				m_TriggeredEvents |= COREEVENT_HOOK_LAUNCH;
-			}		
+			}
 		}
 		else
 		{
 			m_HookedPlayer = -1;
 			m_HookState = HOOK_IDLE;
-			m_HookPos = m_Pos;			
-		}		
+			m_HookPos = m_Pos;
+		}
 	}
-	
+
 	// add the speed modification according to players wanted direction
 	if(m_Direction < 0)
 		m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -Accel);
@@ -161,13 +161,13 @@ void CCharacterCore::Tick(bool UseInput)
 		m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, Accel);
 	if(m_Direction == 0)
 		m_Vel.x *= Friction;
-	
+
 	// handle jumping
 	// 1 bit = to keep track if a jump has been made on this input
 	// 2 bit = to keep track if a air-jump has been made
 	if(Grounded)
 		m_Jumped &= ~2;
-	
+
 	// do hook
 	if(m_HookState == HOOK_IDLE)
 	{
@@ -193,7 +193,7 @@ void CCharacterCore::Tick(bool UseInput)
 			m_HookState = HOOK_RETRACT_START;
 			NewPos = m_Pos + normalize(NewPos-m_Pos) * m_pWorld->m_Tuning.m_HookLength;
 		}
-		
+
 		// make sure that the hook doesn't go though the ground
 		bool GoingToHitGround = false;
 		bool GoingToRetract = false;
@@ -229,7 +229,7 @@ void CCharacterCore::Tick(bool UseInput)
 				}
 			}
 		}
-		
+
 		if(m_HookState == HOOK_FLYING)
 		{
 			// check against ground
@@ -243,11 +243,11 @@ void CCharacterCore::Tick(bool UseInput)
 				m_TriggeredEvents |= COREEVENT_HOOK_HIT_NOHOOK;
 				m_HookState = HOOK_RETRACT_START;
 			}
-			
+
 			m_HookPos = NewPos;
 		}
 	}
-	
+
 	if(m_HookState == HOOK_GRABBED)
 	{
 		if(m_HookedPlayer != -1)
@@ -260,14 +260,14 @@ void CCharacterCore::Tick(bool UseInput)
 				// release hook
 				m_HookedPlayer = -1;
 				m_HookState = HOOK_RETRACTED;
-				m_HookPos = m_Pos;					
+				m_HookPos = m_Pos;
 			}
-			
+
 			// keep players hooked for a max of 1.5sec
 			//if(Server()->Tick() > hook_tick+(Server()->TickSpeed()*3)/2)
 				//release_hooked();
 		}
-		
+
 		// don't do this hook rutine when we are hook to a player
 		if(m_HookedPlayer == -1 && distance(m_HookPos, m_Pos) > 46.0f)
 		{
@@ -276,20 +276,20 @@ void CCharacterCore::Tick(bool UseInput)
 			// this makes it easier to get on top of an platform
 			if(HookVel.y > 0)
 				HookVel.y *= 0.3f;
-			
+
 			// the hook will boost it's power if the player wants to move
 			// in that direction. otherwise it will dampen everything abit
-			if((HookVel.x < 0 && m_Direction < 0) || (HookVel.x > 0 && m_Direction > 0)) 
+			if((HookVel.x < 0 && m_Direction < 0) || (HookVel.x > 0 && m_Direction > 0))
 				HookVel.x *= 0.95f;
 			else
 				HookVel.x *= 0.75f;
-			
+
 			vec2 NewVel = m_Vel+HookVel;
 
 			// check if we are under the legal limit for the hook
 			if(length(NewVel) < m_pWorld->m_Tuning.m_HookDragSpeed || length(NewVel) < length(m_Vel))
 				m_Vel = NewVel; // no problem. apply
-				
+
 		}
 
 		// release hook (max hook time is 1.25
@@ -298,26 +298,26 @@ void CCharacterCore::Tick(bool UseInput)
 		{
 			m_HookedPlayer = -1;
 			m_HookState = HOOK_RETRACTED;
-			m_HookPos = m_Pos;			
+			m_HookPos = m_Pos;
 		}
 	}
-	
-	if(m_pWorld && m_pWorld->m_Tuning.m_PlayerCollision)
+
+	if(m_pWorld)
 	{
 		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
 			CCharacterCore *pCharCore = m_pWorld->m_apCharacters[i];
 			if(!pCharCore)
 				continue;
-			
+
 			//player *p = (player*)ent;
 			if(pCharCore == this) // || !(p->flags&FLAG_ALIVE)
 				continue; // make sure that we don't nudge our self
-			
+
 			// handle player <-> player collision
 			float Distance = distance(m_Pos, pCharCore->m_Pos);
 			vec2 Dir = normalize(m_Pos - pCharCore->m_Pos);
-			if(Distance < PhysSize*1.25f && Distance > 0.0f)
+			if(m_pWorld->m_Tuning.m_PlayerCollision && Distance < PhysSize*1.25f && Distance > 0.0f)
 			{
 				float a = (PhysSize*1.45f - Distance);
 				float Velocity = 0.5f;
@@ -330,15 +330,15 @@ void CCharacterCore::Tick(bool UseInput)
 				m_Vel += Dir*a*(Velocity*0.75f);
 				m_Vel *= 0.85f;
 			}
-			
+
 			// handle hook influence
-			if(m_HookedPlayer == i)
+			if(m_HookedPlayer == i && m_pWorld->m_Tuning.m_PlayerHooking)
 			{
 				if(Distance > PhysSize*1.50f) // TODO: fix tweakable variable
 				{
 					float Accel = m_pWorld->m_Tuning.m_HookDragAccel * (Distance/m_pWorld->m_Tuning.m_HookLength);
 					float DragSpeed = m_pWorld->m_Tuning.m_HookDragSpeed;
-					
+
 					// add force to the hooked player
 					pCharCore->m_Vel.x = SaturatedAdd(-DragSpeed, DragSpeed, pCharCore->m_Vel.x, Accel*Dir.x*1.5f);
 					pCharCore->m_Vel.y = SaturatedAdd(-DragSpeed, DragSpeed, pCharCore->m_Vel.y, Accel*Dir.y*1.5f);
@@ -349,7 +349,7 @@ void CCharacterCore::Tick(bool UseInput)
 				}
 			}
 		}
-	}	
+	}
 
 	// clamp the velocity to something sane
 	if(length(m_Vel) > 6000)
@@ -359,9 +359,9 @@ void CCharacterCore::Tick(bool UseInput)
 void CCharacterCore::Move()
 {
 	float RampValue = VelocityRamp(length(m_Vel)*50, m_pWorld->m_Tuning.m_VelrampStart, m_pWorld->m_Tuning.m_VelrampRange, m_pWorld->m_Tuning.m_VelrampCurvature);
-	
+
 	m_Vel.x = m_Vel.x*RampValue;
-	
+
 	vec2 NewPos = m_Pos;
 	m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 28.0f), 0);
 
@@ -372,6 +372,7 @@ void CCharacterCore::Move()
 		// check player collision
 		float Distance = distance(m_Pos, NewPos);
 		int End = Distance+1;
+		vec2 LastPos = m_Pos;
 		for(int i = 0; i < End; i++)
 		{
 			float a = i/Distance;
@@ -382,34 +383,35 @@ void CCharacterCore::Move()
 				if(!pCharCore || pCharCore == this)
 					continue;
 				float D = distance(Pos, pCharCore->m_Pos);
-				if(D < 28.0f*1.25f && D > 0.0f)
+				if(D < 28.0f && D > 0.0f)
 				{
 					if(a > 0.0f)
-						m_Pos = Pos;
-					else
+						m_Pos = LastPos;
+					else if(distance(NewPos, pCharCore->m_Pos) > D)
 						m_Pos = NewPos;
 					return;
 				}
 			}
+			LastPos = Pos;
 		}
 	}
-	
+
 	m_Pos = NewPos;
 }
 
 void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore)
 {
-	pObjCore->m_X = round(m_Pos.x);
-	pObjCore->m_Y = round(m_Pos.y);
-	
-	pObjCore->m_VelX = round(m_Vel.x*256.0f);
-	pObjCore->m_VelY = round(m_Vel.y*256.0f);
+	pObjCore->m_X = round_to_int(m_Pos.x);
+	pObjCore->m_Y = round_to_int(m_Pos.y);
+
+	pObjCore->m_VelX = round_to_int(m_Vel.x*256.0f);
+	pObjCore->m_VelY = round_to_int(m_Vel.y*256.0f);
 	pObjCore->m_HookState = m_HookState;
 	pObjCore->m_HookTick = m_HookTick;
-	pObjCore->m_HookX = round(m_HookPos.x);
-	pObjCore->m_HookY = round(m_HookPos.y);
-	pObjCore->m_HookDx = round(m_HookDir.x*256.0f);
-	pObjCore->m_HookDy = round(m_HookDir.y*256.0f);
+	pObjCore->m_HookX = round_to_int(m_HookPos.x);
+	pObjCore->m_HookY = round_to_int(m_HookPos.y);
+	pObjCore->m_HookDx = round_to_int(m_HookDir.x*256.0f);
+	pObjCore->m_HookDy = round_to_int(m_HookDir.y*256.0f);
 	pObjCore->m_HookedPlayer = m_HookedPlayer;
 	pObjCore->m_Jumped = m_Jumped;
 	pObjCore->m_Direction = m_Direction;

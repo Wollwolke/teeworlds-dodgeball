@@ -53,7 +53,8 @@ bool CEmoticon::OnMouseMove(float x, float y)
 {
 	if(!m_Active)
 		return false;
-	
+
+	UI()->ConvertMouseMove(&x, &y);
 	m_SelectorMouse += vec2(x,y);
 	return true;
 }
@@ -90,7 +91,7 @@ void CEmoticon::DrawCircle(float x, float y, float r, int Segments)
 		m_pClient->Graphics()->QuadsDrawFreeform(Array, NumItems);
 }
 
-	
+
 void CEmoticon::OnRender()
 {
 	if(!m_Active)
@@ -100,20 +101,27 @@ void CEmoticon::OnRender()
 		m_WasActive = false;
 		return;
 	}
-	
+
+	if(m_pClient->m_Snap.m_SpecInfo.m_Active)
+	{
+		m_Active = false;
+		m_WasActive = false;
+		return;
+	}
+
 	m_WasActive = true;
-	
-	if (length(m_SelectorMouse) > 140)
-		m_SelectorMouse = normalize(m_SelectorMouse) * 140;
+
+	if (length(m_SelectorMouse) > 170.0f)
+		m_SelectorMouse = normalize(m_SelectorMouse) * 170.0f;
 
 	float SelectedAngle = GetAngle(m_SelectorMouse) + 2*pi/24;
 	if (SelectedAngle < 0)
 		SelectedAngle += 2*pi;
 
-	if (length(m_SelectorMouse) > 100)
+	if (length(m_SelectorMouse) > 110.0f)
 		m_SelectedEmote = (int)(SelectedAngle / (2*pi) * NUM_EMOTICONS);
 
-    CUIRect Screen = *UI()->Screen();
+	CUIRect Screen = *UI()->Screen();
 
 	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
 
@@ -122,7 +130,7 @@ void CEmoticon::OnRender()
 	Graphics()->TextureSet(-1);
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(0,0,0,0.3f);
-	DrawCircle(Screen.w/2, Screen.h/2, 160, 64);
+	DrawCircle(Screen.w/2, Screen.h/2, 190.0f, 64);
 	Graphics()->QuadsEnd();
 
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_EMOTICONS].m_Id);
@@ -136,10 +144,10 @@ void CEmoticon::OnRender()
 
 		bool Selected = m_SelectedEmote == i;
 
-		float Size = Selected ? 80 : 32;
+		float Size = Selected ? 80.0f : 50.0f;
 
-		float NudgeX = 120 * cosf(Angle);
-		float NudgeY = 120 * sinf(Angle);
+		float NudgeX = 150.0f * cosf(Angle);
+		float NudgeY = 150.0f * sinf(Angle);
 		RenderTools()->SelectSprite(SPRITE_OOP + i);
 		IGraphics::CQuadItem QuadItem(Screen.w/2 + NudgeX, Screen.h/2 + NudgeY, Size, Size);
 		Graphics()->QuadsDraw(&QuadItem, 1);
@@ -147,12 +155,12 @@ void CEmoticon::OnRender()
 
 	Graphics()->QuadsEnd();
 
-    Graphics()->TextureSet(g_pData->m_aImages[IMAGE_CURSOR].m_Id);
-    Graphics()->QuadsBegin();
-    Graphics()->SetColor(1,1,1,1);
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_CURSOR].m_Id);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(1,1,1,1);
 	IGraphics::CQuadItem QuadItem(m_SelectorMouse.x+Screen.w/2,m_SelectorMouse.y+Screen.h/2,24,24);
 	Graphics()->QuadsDrawTL(&QuadItem, 1);
-    Graphics()->QuadsEnd();
+	Graphics()->QuadsEnd();
 }
 
 void CEmoticon::Emote(int Emoticon)

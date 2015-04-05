@@ -4,7 +4,10 @@
 
 #include <engine/shared/network.h>
 
+#include <game/version.h>
+
 #include "versionsrv.h"
+#include "mapversions.h"
 
 enum {
 	MAX_MAPS_PER_PACKET=48,
@@ -37,19 +40,19 @@ void BuildPackets()
 		if(Chunk > MAX_MAPS_PER_PACKET)
 			Chunk = MAX_MAPS_PER_PACKET;
 		ServersLeft -= Chunk;
-		
-		// copy header	
+
+		// copy header
 		mem_copy(m_aPackets[m_NumPackets].m_Data.m_aHeader, VERSIONSRV_MAPLIST, sizeof(VERSIONSRV_MAPLIST));
-		
+
 		// copy map versions
 		for(int i = 0; i < Chunk; i++)
 		{
 			m_aPackets[m_NumPackets].m_Data.m_aMaplist[i] = *pCurrent;
 			pCurrent++;
 		}
-		
+
 		m_aPackets[m_NumPackets].m_Size = sizeof(VERSIONSRV_MAPLIST) + sizeof(CMapVersion)*Chunk;
-		
+
 		m_NumPackets++;
 	}
 }
@@ -57,11 +60,11 @@ void BuildPackets()
 void SendVer(NETADDR *pAddr)
 {
 	CNetChunk p;
-	unsigned char aData[sizeof(VERSIONSRV_VERSION) + sizeof(VERSION_DATA)];
-	
+	unsigned char aData[sizeof(VERSIONSRV_VERSION) + sizeof(GAME_RELEASE_VERSION)];
+
 	mem_copy(aData, VERSIONSRV_VERSION, sizeof(VERSIONSRV_VERSION));
-	mem_copy(aData + sizeof(VERSIONSRV_VERSION), VERSION_DATA, sizeof(VERSION_DATA));
-	
+	mem_copy(aData + sizeof(VERSIONSRV_VERSION), GAME_RELEASE_VERSION, sizeof(GAME_RELEASE_VERSION));
+
 	p.m_ClientID = -1;
 	p.m_Address = *pAddr;
 	p.m_Flags = NETSENDFLAG_CONNLESS;
@@ -88,13 +91,13 @@ int main(int argc, char **argv) // ignore_convention
 	}
 
 	BuildPackets();
-	
+
 	dbg_msg("versionsrv", "started");
-	
+
 	while(1)
 	{
 		g_NetOp.Update();
-		
+
 		// process packets
 		CNetChunk Packet;
 		while(g_NetOp.Recv(&Packet))
@@ -112,7 +115,7 @@ int main(int argc, char **argv) // ignore_convention
 				p.m_ClientID = -1;
 				p.m_Address = Packet.m_Address;
 				p.m_Flags = NETSENDFLAG_CONNLESS;
-				
+
 				for(int i = 0; i < m_NumPackets; i++)
 				{
 					p.m_DataSize = m_aPackets[i].m_Size;
@@ -121,10 +124,10 @@ int main(int argc, char **argv) // ignore_convention
 				}
 			}
 		}
-		
+
 		// be nice to the CPU
 		thread_sleep(1);
 	}
-	
+
 	return 0;
 }

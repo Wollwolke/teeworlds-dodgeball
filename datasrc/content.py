@@ -3,13 +3,13 @@ from datatypes import *
 
 class Sound(Struct):
 	def __init__(self, filename=""):
-		Struct.__init__(self, "SOUND")
+		Struct.__init__(self, "CDataSound")
 		self.id = Int(0)
 		self.filename = String(filename)
 
 class SoundSet(Struct):
 	def __init__(self, name="", files=[]):
-		Struct.__init__(self, "SOUNDSET")
+		Struct.__init__(self, "CDataSoundset")
 		self.name = String(name)
 		self.sounds = Array(Sound())
 		self.last = Int(-1)
@@ -18,21 +18,21 @@ class SoundSet(Struct):
 
 class Image(Struct):
 	def __init__(self, name="", filename=""):
-		Struct.__init__(self, "IMAGE")
+		Struct.__init__(self, "CDataImage")
 		self.name = String(name)
 		self.filename = String(filename)
 		self.id = Int(-1)
-	
+
 class SpriteSet(Struct):
 	def __init__(self, name="", image=None, gridx=0, gridy=0):
-		Struct.__init__(self, "SPRITESET")
+		Struct.__init__(self, "CDataSpriteset")
 		self.image = Pointer(Image, image) # TODO
 		self.gridx = Int(gridx)
 		self.gridy = Int(gridy)
 
 class Sprite(Struct):
 	def __init__(self, name="", Set=None, x=0, y=0, w=0, h=0):
-		Struct.__init__(self, "SPRITE")
+		Struct.__init__(self, "CDataSprite")
 		self.name = String(name)
 		self.set = Pointer(SpriteSet, Set) # TODO
 		self.x = Int(x)
@@ -42,14 +42,14 @@ class Sprite(Struct):
 
 class Pickup(Struct):
 	def __init__(self, name="", respawntime=15, spawndelay=0):
-		Struct.__init__(self, "PICKUPSPEC")
+		Struct.__init__(self, "CDataPickupspec")
 		self.name = String(name)
 		self.respawntime = Int(respawntime)
 		self.spawndelay = Int(spawndelay)
 
 class AnimKeyframe(Struct):
 	def __init__(self, time=0, x=0, y=0, angle=0):
-		Struct.__init__(self, "ANIM_KEYFRAME")
+		Struct.__init__(self, "CAnimKeyframe")
 		self.time = Float(time)
 		self.x = Float(x)
 		self.y = Float(y)
@@ -57,12 +57,12 @@ class AnimKeyframe(Struct):
 
 class AnimSequence(Struct):
 	def __init__(self):
-		Struct.__init__(self, "ANIM_SEQUENCE")
+		Struct.__init__(self, "CAnimSequence")
 		self.frames = Array(AnimKeyframe())
 
 class Animation(Struct):
 	def __init__(self, name=""):
-		Struct.__init__(self, "ANIMATION")
+		Struct.__init__(self, "CAnimation")
 		self.name = String(name)
 		self.body = AnimSequence()
 		self.back_foot = AnimSequence()
@@ -71,14 +71,14 @@ class Animation(Struct):
 
 class WeaponSpec(Struct):
 	def __init__(self, container=None, name=""):
-		Struct.__init__(self, "WEAPONSPEC")
+		Struct.__init__(self, "CDataWeaponspec")
 		self.name = String(name)
 		self.sprite_body = Pointer(Sprite, Sprite())
 		self.sprite_cursor = Pointer(Sprite, Sprite())
 		self.sprite_proj = Pointer(Sprite, Sprite())
 		self.sprite_muzzles = Array(Pointer(Sprite, Sprite()))
 		self.visual_size = Int(96)
-		
+
 		self.firedelay = Int(500)
 		self.maxammo = Int(10)
 		self.ammoregentime = Int(0)
@@ -101,29 +101,29 @@ class WeaponSpec(Struct):
 
 class Weapon_Hammer(Struct):
 	def __init__(self):
-		Struct.__init__(self, "WEAPONSPEC_HAMMER")
+		Struct.__init__(self, "CDataWeaponspecHammer")
 		self.base = Pointer(WeaponSpec, WeaponSpec())
 
 class Weapon_Gun(Struct):
 	def __init__(self):
-		Struct.__init__(self, "WEAPONSPEC_GUN")
+		Struct.__init__(self, "CDataWeaponspecGun")
 		self.base = Pointer(WeaponSpec, WeaponSpec())
 		self.curvature = Float(1.25)
 		self.speed = Float(2200)
 		self.lifetime = Float(2.0)
-		
+
 class Weapon_Shotgun(Struct):
 	def __init__(self):
-		Struct.__init__(self, "WEAPONSPEC_SHOTGUN")
+		Struct.__init__(self, "CDataWeaponspecShotgun")
 		self.base = Pointer(WeaponSpec, WeaponSpec())
 		self.curvature = Float(1.25)
 		self.speed = Float(2200)
 		self.speeddiff = Float(0.8)
-		self.lifetime = Float(0.25)		
+		self.lifetime = Float(0.25)
 
 class Weapon_Grenade(Struct):
 	def __init__(self):
-		Struct.__init__(self, "WEAPONSPEC_GRENADE")
+		Struct.__init__(self, "CDataWeaponspecGrenade")
 		self.base = Pointer(WeaponSpec, WeaponSpec())
 		self.curvature = Float(7.0)
 		self.speed = Float(1000)
@@ -131,16 +131,16 @@ class Weapon_Grenade(Struct):
 
 class Weapon_Rifle(Struct):
 	def __init__(self):
-		Struct.__init__(self, "WEAPONSPEC_RIFLE")
+		Struct.__init__(self, "CDataWeaponspecRifle")
 		self.base = Pointer(WeaponSpec, WeaponSpec())
 		self.reach = Float(800.0)
 		self.bounce_delay = Int(150)
 		self.bounce_num = Int(1)
 		self.bounce_cost = Float(0)
-		
+
 class Weapon_Ninja(Struct):
 	def __init__(self):
-		Struct.__init__(self, "WEAPONSPEC_NINJA")
+		Struct.__init__(self, "CDataWeaponspecNinja")
 		self.base = Pointer(WeaponSpec, WeaponSpec())
 		self.duration = Int(15000)
 		self.movetime = Int(200)
@@ -148,7 +148,7 @@ class Weapon_Ninja(Struct):
 
 class Weapons(Struct):
 	def __init__(self):
-		Struct.__init__(self, "WEAPONSPECS")
+		Struct.__init__(self, "CDataWeaponspecs")
 		self.hammer = Weapon_Hammer()
 		self.gun = Weapon_Gun()
 		self.shotgun = Weapon_Shotgun()
@@ -159,7 +159,7 @@ class Weapons(Struct):
 
 class DataContainer(Struct):
 	def __init__(self):
-		Struct.__init__(self, "DATACONTAINER")
+		Struct.__init__(self, "CDataContainer")
 		self.sounds = Array(SoundSet())
 		self.images = Array(Image())
 		self.pickups = Array(Pickup())
@@ -190,7 +190,7 @@ container.sounds.Add(SoundSet("player_pain_long", FileList("audio/vo_teefault_pa
 
 container.sounds.Add(SoundSet("body_land", FileList("audio/foley_land-%02d.wv", 4)))
 container.sounds.Add(SoundSet("player_airjump", FileList("audio/foley_dbljump-%02d.wv", 3)))
-container.sounds.Add(SoundSet("player_jump", FileList("audio/foley_foot_left-%02d.wv", 4) +  FileList("audio/foley_foot_right-%02d.wv", 4)))
+container.sounds.Add(SoundSet("player_jump", FileList("audio/foley_foot_left-%02d.wv", 4) + FileList("audio/foley_foot_right-%02d.wv", 4)))
 container.sounds.Add(SoundSet("player_die", FileList("audio/foley_body_splat-%02d.wv", 3)))
 container.sounds.Add(SoundSet("player_spawn", FileList("audio/vo_teefault_spawn-%02d.wv", 7)))
 container.sounds.Add(SoundSet("player_skid", FileList("audio/sfx_skid-%02d.wv", 4)))
@@ -220,6 +220,8 @@ container.sounds.Add(SoundSet("ctf_return", ["audio/sfx_ctf_rtn.wv"]))
 container.sounds.Add(SoundSet("ctf_grab_pl", ["audio/sfx_ctf_grab_pl.wv"]))
 container.sounds.Add(SoundSet("ctf_grab_en", ["audio/sfx_ctf_grab_en.wv"]))
 container.sounds.Add(SoundSet("ctf_capture", ["audio/sfx_ctf_cap_pl.wv"]))
+
+container.sounds.Add(SoundSet("menu", ["audio/music_menu.wv"]))
 
 image_null = Image("null", "")
 image_particles = Image("particles", "particles.png")
@@ -290,7 +292,7 @@ container.sprites.Add(Sprite("armor_empty", set_game, 23,2,2,2))
 container.sprites.Add(Sprite("star1", set_game, 15,0,2,2))
 container.sprites.Add(Sprite("star2", set_game, 17,0,2,2))
 container.sprites.Add(Sprite("star3", set_game, 19,0,2,2))
-	
+
 container.sprites.Add(Sprite("part1", set_game, 6,0,1,1))
 container.sprites.Add(Sprite("part2", set_game, 6,1,1,1))
 container.sprites.Add(Sprite("part3", set_game, 7,0,1,1))
@@ -423,35 +425,35 @@ anim.body.frames.Add(AnimKeyframe(0.6, 0, 0, 0))
 anim.body.frames.Add(AnimKeyframe(0.8, 0,-1, 0))
 anim.body.frames.Add(AnimKeyframe(1.0, 0, 0, 0))
 
-anim.back_foot.frames.Add(AnimKeyframe(0.0,  8, 0, 0))
+anim.back_foot.frames.Add(AnimKeyframe(0.0, 8, 0, 0))
 anim.back_foot.frames.Add(AnimKeyframe(0.2, -8, 0, 0))
 anim.back_foot.frames.Add(AnimKeyframe(0.4,-10,-4, 0.2))
 anim.back_foot.frames.Add(AnimKeyframe(0.6, -8,-8, 0.3))
-anim.back_foot.frames.Add(AnimKeyframe(0.8,  4,-4,-0.2))
-anim.back_foot.frames.Add(AnimKeyframe(1.0,  8, 0, 0))
+anim.back_foot.frames.Add(AnimKeyframe(0.8, 4,-4,-0.2))
+anim.back_foot.frames.Add(AnimKeyframe(1.0, 8, 0, 0))
 
 anim.front_foot.frames.Add(AnimKeyframe(0.0,-10,-4, 0.2))
 anim.front_foot.frames.Add(AnimKeyframe(0.2, -8,-8, 0.3))
-anim.front_foot.frames.Add(AnimKeyframe(0.4,  4,-4,-0.2))
-anim.front_foot.frames.Add(AnimKeyframe(0.6,  8, 0, 0))
-anim.front_foot.frames.Add(AnimKeyframe(0.8,  8, 0, 0))
+anim.front_foot.frames.Add(AnimKeyframe(0.4, 4,-4,-0.2))
+anim.front_foot.frames.Add(AnimKeyframe(0.6, 8, 0, 0))
+anim.front_foot.frames.Add(AnimKeyframe(0.8, 8, 0, 0))
 anim.front_foot.frames.Add(AnimKeyframe(1.0,-10,-4, 0.2))
 container.animations.Add(anim)
 
 anim = Animation("hammer_swing")
 anim.attach.frames.Add(AnimKeyframe(0.0, 0, 0, -0.10))
-anim.attach.frames.Add(AnimKeyframe(0.3, 0, 0,  0.25))
-anim.attach.frames.Add(AnimKeyframe(0.4, 0, 0,  0.30))
-anim.attach.frames.Add(AnimKeyframe(0.5, 0, 0,  0.25))
+anim.attach.frames.Add(AnimKeyframe(0.3, 0, 0, 0.25))
+anim.attach.frames.Add(AnimKeyframe(0.4, 0, 0, 0.30))
+anim.attach.frames.Add(AnimKeyframe(0.5, 0, 0, 0.25))
 anim.attach.frames.Add(AnimKeyframe(1.0, 0, 0, -0.10))
 container.animations.Add(anim)
-			
+
 anim = Animation("ninja_swing")
 anim.attach.frames.Add(AnimKeyframe(0.00, 0, 0, -0.25))
 anim.attach.frames.Add(AnimKeyframe(0.10, 0, 0, -0.05))
-anim.attach.frames.Add(AnimKeyframe(0.15, 0, 0,  0.35))
-anim.attach.frames.Add(AnimKeyframe(0.42, 0, 0,  0.40))
-anim.attach.frames.Add(AnimKeyframe(0.50, 0, 0,  0.35))
+anim.attach.frames.Add(AnimKeyframe(0.15, 0, 0, 0.35))
+anim.attach.frames.Add(AnimKeyframe(0.42, 0, 0, 0.40))
+anim.attach.frames.Add(AnimKeyframe(0.50, 0, 0, 0.35))
 anim.attach.frames.Add(AnimKeyframe(1.00, 0, 0, -0.25))
 container.animations.Add(anim)
 
@@ -469,7 +471,7 @@ weapon.firedelay.Set(125)
 weapon.ammoregentime.Set(500)
 weapon.visual_size.Set(64)
 weapon.offsetx.Set(32)
-weapon.offsety.Set(-4)
+weapon.offsety.Set(4)
 weapon.muzzleoffsetx.Set(50)
 weapon.muzzleoffsety.Set(6)
 container.weapons.gun.base.Set(weapon)

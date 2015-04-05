@@ -17,14 +17,17 @@ class CDemoRecorder : public IDemoRecorder
 	int m_FirstTick;
 	unsigned char m_aLastSnapshotData[CSnapshot::MAX_SIZE];
 	class CSnapshotDelta *m_pSnapshotDelta;
-	
+	int m_NumTimelineMarkers;
+	int m_aTimelineMarkers[MAX_TIMELINE_MARKERS];
+
 	void WriteTickMarker(int Tick, int Keyframe);
 	void Write(int Type, const void *pData, int Size);
 public:
 	CDemoRecorder(class CSnapshotDelta *pSnapshotDelta);
-	
+
 	int Start(class IStorage *pStorage, class IConsole *pConsole, const char *pFilename, const char *pNetversion, const char *pMap, unsigned MapCrc, const char *pType);
 	int Stop();
+	void AddDemoMarker();
 
 	void RecordSnapshot(int Tick, const void *pData, int Size);
 	void RecordMessage(const void *pData, int Size);
@@ -44,21 +47,22 @@ public:
 		virtual void OnDemoPlayerSnapshot(void *pData, int Size) = 0;
 		virtual void OnDemoPlayerMessage(void *pData, int Size) = 0;
 	};
-	
+
 	struct CPlaybackInfo
 	{
 		CDemoHeader m_Header;
-		
+		CTimelineMarkers m_TimelineMarkers;
+
 		IDemoPlayer::CInfo m_Info;
 
 		int64 m_LastUpdate;
 		int64 m_CurrentTime;
-		
+
 		int m_SeekablePoints;
-		
+
 		int m_NextTick;
 		int m_PreviousTick;
-		
+
 		float m_IntraTick;
 		float m_TickTime;
 	};
@@ -73,12 +77,12 @@ private:
 		long m_Filepos;
 		int m_Tick;
 	};
-		
+
 	struct CKeyFrameSearch
 	{
 		CKeyFrame m_Frame;
 		CKeyFrameSearch *m_pNext;
-	};	
+	};
 
 	class IConsole *m_pConsole;
 	IOHANDLE m_File;
@@ -97,25 +101,25 @@ private:
 	int NextFrame();
 
 public:
-	
+
 	CDemoPlayer(class CSnapshotDelta *m_pSnapshotDelta);
-	
+
 	void SetListner(IListner *pListner);
-		
+
 	int Load(class IStorage *pStorage, class IConsole *pConsole, const char *pFilename, int StorageType);
 	int Play();
 	void Pause();
 	void Unpause();
-	int Stop();	
+	int Stop();
 	void SetSpeed(float Speed);
-	int SetPos(float Precent);
+	int SetPos(float Percent);
 	const CInfo *BaseInfo() const { return &m_Info.m_Info; }
-	char *GetDemoName();
+	void GetDemoName(char *pBuffer, int BufferSize) const;
 	bool GetDemoInfo(class IStorage *pStorage, const char *pFilename, int StorageType, CDemoHeader *pDemoHeader) const;
 	int GetDemoType() const;
-	
+
 	int Update();
-	
+
 	const CPlaybackInfo *Info() const { return &m_Info; }
 	int IsPlaying() const { return m_File != 0; }
 };

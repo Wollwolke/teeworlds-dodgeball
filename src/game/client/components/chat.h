@@ -9,8 +9,8 @@
 class CChat : public CComponent
 {
 	CLineInput m_Input;
-	
-	enum 
+
+	enum
 	{
 		MAX_LINES = 25,
 	};
@@ -36,6 +36,11 @@ class CChat : public CComponent
 		MODE_NONE=0,
 		MODE_ALL,
 		MODE_TEAM,
+
+		CHAT_SERVER=0,
+		CHAT_HIGHLIGHT,
+		CHAT_CLIENT,
+		CHAT_NUM,
 	};
 
 	int m_Mode;
@@ -47,25 +52,34 @@ class CChat : public CComponent
 	char m_aCompletionBuffer[256];
 	int m_PlaceholderOffset;
 	int m_PlaceholderLength;
-	char *m_pHistoryEntry;
-	TStaticRingBuffer<char, 64*1024, CRingBufferBase::FLAG_RECYCLE> m_History;
-	
+
+	struct CHistoryEntry
+	{
+		int m_Team;
+		char m_aText[1];
+	};
+	CHistoryEntry *m_pHistoryEntry;
+	TStaticRingBuffer<CHistoryEntry, 64*1024, CRingBufferBase::FLAG_RECYCLE> m_History;
+	int m_PendingChatCounter;
+	int64 m_LastChatSend;
+	int64 m_aLastSoundPlayed[CHAT_NUM];
+
 	static void ConSay(IConsole::IResult *pResult, void *pUserData);
 	static void ConSayTeam(IConsole::IResult *pResult, void *pUserData);
 	static void ConChat(IConsole::IResult *pResult, void *pUserData);
 	static void ConShowChat(IConsole::IResult *pResult, void *pUserData);
-	
+
 public:
 	CChat();
 
 	bool IsActive() const { return m_Mode != MODE_NONE; }
-	
+
 	void AddLine(int ClientID, int Team, const char *pLine);
-	
+
 	void EnableMode(int Team);
-	
+
 	void Say(int Team, const char *pLine);
-	
+
 	virtual void OnReset();
 	virtual void OnConsoleInit();
 	virtual void OnStateChange(int NewState, int OldState);

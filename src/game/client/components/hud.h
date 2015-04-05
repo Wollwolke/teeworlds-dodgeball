@@ -5,18 +5,19 @@
 #include <game/client/component.h>
 
 class CHud : public CComponent
-{	
+{
 	float m_Width, m_Height;
 	float m_AverageFPS;
-	
+
 	void RenderCursor();
-	
+
 	void RenderFps();
 	void RenderConnectionWarning();
 	void RenderTeambalanceWarning();
 	void RenderVoting();
 	void RenderHealthAndAmmo(const CNetObj_Character *pCharacter);
 	void RenderGameTimer();
+	void RenderPauseNotification();
 	void RenderSuddenDeath();
 	void RenderScoreHud();
 	void RenderSpectatorHud();
@@ -25,7 +26,7 @@ class CHud : public CComponent
 	void MapscreenToGroup(float CenterX, float CenterY, struct CMapItemGroup *PGroup);
 public:
 	CHud();
-	
+
 	virtual void OnReset();
 	virtual void OnRender();
 };

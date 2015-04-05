@@ -106,7 +106,7 @@ void CGameControllerDB::OnDisconnect (const CPlayer *const p)
 void CGameControllerDB::Tick()
 {
 	IGameController::Tick();
-	DoTeamScoreWincheck();
+	DoWincheck();
 
 	if (m_GameOverTick == -1 && m_RoundStartTick != Server()->Tick())
 	{	

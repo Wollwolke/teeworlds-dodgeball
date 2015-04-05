@@ -15,9 +15,9 @@ CGameControllerTDM::CGameControllerTDM(class CGameContext *pGameServer) : IGameC
 int CGameControllerTDM::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
 	IGameController::OnCharacterDeath(pVictim, pKiller, Weapon);
-	
-	
-	if(Weapon != WEAPON_GAME)
+
+
+	if(pKiller && Weapon != WEAPON_GAME)
 	{
 		// do team scoring
 		if(pKiller == pVictim->GetPlayer() || pKiller->GetTeam() == pVictim->GetPlayer()->GetTeam())
@@ -27,7 +27,7 @@ int CGameControllerTDM::OnCharacterDeath(class CCharacter *pVictim, class CPlaye
 	}
 
 	pVictim->GetPlayer()->m_RespawnTick = max(pVictim->GetPlayer()->m_RespawnTick, Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvRespawnDelayTDM);
-		
+
 	return 0;
 }
 
@@ -48,6 +48,5 @@ void CGameControllerTDM::Snap(int SnappingClient)
 
 void CGameControllerTDM::Tick()
 {
-	DoTeamScoreWincheck();
 	IGameController::Tick();
 }
