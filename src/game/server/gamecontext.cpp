@@ -666,11 +666,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			pPlayer->m_LastChat = Server()->Tick();
 
-			if(!str_comp(pMsg->m_pMessage, "/about")
+			if(!str_comp(pMsg->m_pMessage, "/about"))
 			{
 				SendChatTarget(ClientID, "Dodgeball Mod by Nilaya. Maintained by Getkey aka PTI|July.");
 			}
-			else if(!str_comp(pMsg->m_pMessage, "/help")
+			else if(!str_comp(pMsg->m_pMessage, "/help"))
 			{
 				SendChatTarget(ClientID, "Score points by hitting another player with a ball without letting the ball bounce off of a wall.");
 				SendChatTarget(ClientID, "You can also score a point by catching another player's ball while it is in the air.");
