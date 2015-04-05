@@ -545,8 +545,9 @@ void CGameContext::OnClientEnter(int ClientID)
  	if (str_comp(m_pController->m_pGameType, "DB")==0)
  	{
  		// Send MOD-version string
- 		str_format(aBuf, sizeof (aBuf), "DodgeBall-MOD version: %s", MOD_VERSION);
+ 		str_format(aBuf, sizeof (aBuf), "DodgeBall version: %s", DODGEBALL_VERSION);
  		SendChatTarget(ClientID, aBuf);
+		SendChatTarget(ClientID, "Type /help for instructions or /about for mod information");
  		
  		// Send welcome message
  		if (str_length(g_Config.m_SvdbWelcomeMessage))
@@ -665,13 +666,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			pPlayer->m_LastChat = Server()->Tick();
 
-			if(!str_comp(pMsg->m_pMessage, "/info") || !str_comp(pMsg->m_pMessage, ".info"))
+			if(!str_comp(pMsg->m_pMessage, "/about")
 			{
-				SendChatTarget(ClientID, "Dodgeball Mod by Nilaya\nContact: johnb820@gmail.com");
+				SendChatTarget(ClientID, "Dodgeball Mod by Nilaya. Maintained by Getkey aka PTI|July.");
 			}
-			else if(!str_comp(pMsg->m_pMessage, "/help") || !str_comp(pMsg->m_pMessage, "/rules"))
+			else if(!str_comp(pMsg->m_pMessage, "/help")
 			{
-				SendChatTarget(ClientID, "Score points by hitting another player with a ball without letting the ball bounce off of a wall. You can also score a point by catching another player's ball while it is in the air.");
+				SendChatTarget(ClientID, "Score points by hitting another player with a ball without letting the ball bounce off of a wall.");
+				SendChatTarget(ClientID, "You can also score a point by catching another player's ball while it is in the air.");
 			} else
 			SendChat(ClientID, Team, pMsg->m_pMessage);
 		}

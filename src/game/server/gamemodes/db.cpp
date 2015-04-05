@@ -1,3 +1,6 @@
+/* Dodgeball by Nilaya. Maintained by Getkey.*/
+/* Original thread https://www.teeworlds.com/forum/viewtopic.php?id=8652 */
+
 #include <string.h>
 #include <engine/shared/config.h>
 #include <engine/server.h>
@@ -8,12 +11,12 @@
 #include <game/collision.h>
 #include "db.h"
 
-CGameControllerDB::CGameControllerDB(class CGameContext *pGameServer) 
+CGameControllerDB::CGameControllerDB(class CGameContext *pGameServer)
 : IGameController(pGameServer)
 {
 	m_ballIndex = 0;
 
-	for (int i = 0; i < DB_MAX_BALLS; i++) 
+	for (int i = 0; i < DB_MAX_BALLS; i++)
 	{
 		balls[i] = 0;
 	}
@@ -30,10 +33,10 @@ bool CGameControllerDB::OnEntity (int Index, vec2 Pos)
 	//	add balls
 	switch (Index)
 	{
-	case ENTITY_HEALTH_1: 
+	case ENTITY_HEALTH_1:
 		if (balls[m_ballIndex] == 0)
 		{
-			GameServer()->m_World.InsertEntity(balls[m_ballIndex] = new CBall(&GameServer()->m_World, Pos)); 
+			GameServer()->m_World.InsertEntity(balls[m_ballIndex] = new CBall(&GameServer()->m_World, Pos));
 			m_ballIndex = m_ballIndex + 1;
 			break;		
 		}
@@ -239,7 +242,7 @@ void CBall::Snap(int SnappingClient)
 	
 	if(!ball)
 		return;
-		
+
 	if (!m_Carrier) {	
 		ball->m_X = (int)m_Pos.x;
 		ball->m_Y = (int)m_Pos.y;
@@ -252,14 +255,14 @@ void CBall::Tick()
 	for (int i =  0; i < DB_MAX_BALLS; ++i)
 	{
 		CBall* b = static_cast<CGameControllerDB *>(GameServer()->m_pController)->balls[i];
-		
+
 		if (!b)
 			continue;
-		
+
 		//Don't nudge the same ball
 		if (b == this)
 			continue;
-		
+
 		//Only do ball collision if ball is not carried by a player
 		if (!b->m_Carrier)
 		{
@@ -280,19 +283,19 @@ void CBall::Tick()
 			}
 		}
 	}
-	
+
 	//Handle ball vs. player collision
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-			    
+
 		CPlayer *p = GameServer()->m_apPlayers[i];
 		if (!p)
 			continue;
-			
+
 		CCharacter *ch = GameServer()->m_apPlayers[i]->GetCharacter();
 		if(!ch)
 			continue;
-		
+
 		float Distance = distance(m_Pos, ch->m_Pos);
 		vec2 Dir = normalize(m_Pos - ch->m_Pos);
 		if(Distance < ms_PhysSize*1.85f && Distance > 0.0f)
@@ -310,13 +313,3 @@ void CBall::Tick()
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
