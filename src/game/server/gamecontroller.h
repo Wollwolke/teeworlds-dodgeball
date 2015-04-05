@@ -52,7 +52,7 @@ protected:
 	int m_GameOverTick;
 	int m_SuddenDeath;
 	
-	int m_aTeamscore[2];
+
 	
 	int m_Warmup;
 	int m_RoundCount;
@@ -62,6 +62,9 @@ protected:
 	bool m_ForceBalanced;
 	
 public:
+    
+	int m_aTeamscore[2]; //Need this to be public for use in Character class upon scoring with hook ball. Accessor is probably a better solution.
+	
 	const char *m_pGameType;
 
 	bool IsTeamplay() const;

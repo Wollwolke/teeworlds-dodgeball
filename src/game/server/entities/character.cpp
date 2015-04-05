@@ -8,6 +8,7 @@
 #include "character.h"
 #include "laser.h"
 #include "projectile.h"
+#include <game/server/gamemodes/db.h>
 
 //input count
 struct CInputCount
@@ -60,6 +61,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_LastWeapon = WEAPON_HAMMER;
 	m_QueuedWeapon = -1;
 	
+ 	ball = NULL;
 	m_pPlayer = pPlayer;
 	m_Pos = Pos;
 	
@@ -112,7 +114,7 @@ bool CCharacter::IsGrounded()
 
 void CCharacter::HandleNinja()
 {
-	if(m_ActiveWeapon != WEAPON_NINJA)
+	if(m_ActiveWeapon != WEAPON_NINJA || ball)
 		return;
 	
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
@@ -193,6 +195,44 @@ void CCharacter::HandleNinja()
 	return;
 }
 
+//	handle ball as weapon
+void CCharacter::ShootBall(vec2 direction)
+{
+ 	if (!ball) return;
+ 
+ 	//	drop ball
+ 	ball->m_DropTick = Server()->Tick();
+ 	ball->m_LastCarrier = m_pPlayer;
+ 	ball->m_Carrier = 0;
+	ball->m_Vel = direction;
+	ball->m_IsDead = 0;
+    ball = NULL;
+	
+ 	// stop ninja-ball-mode
+ 	m_aWeapons[WEAPON_NINJA].m_Got = false;
+ 	m_ActiveWeapon = m_LastWeapon;
+ 	if (m_ActiveWeapon == WEAPON_NINJA)
+ 		m_ActiveWeapon = WEAPON_GUN;
+ 	SetWeapon(m_ActiveWeapon);
+ 	
+ 	GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH);
+ 	
+}
+ 
+void CCharacter::CaptureBall(CBall* b) 
+{
+ 	ball = b;
+ 	b->m_Carrier = this;
+ 	b->m_Pos = m_Core.m_Pos;
+ 	GameServer()->CreateSound(m_Pos, SOUND_CTF_GRAB_EN);
+ 
+ 	//      switch to ninja-ball-mode
+ 	m_Ninja.m_ActivationTick = Server()->Tick();
+ 	m_aWeapons[WEAPON_NINJA].m_Got = true;
+ 	m_aWeapons[WEAPON_NINJA].m_Ammo = -1;
+ 	m_LastWeapon = m_ActiveWeapon;
+	m_ActiveWeapon = WEAPON_NINJA;
+}
 
 void CCharacter::DoWeaponSwitch()
 {
@@ -409,15 +449,27 @@ void CCharacter::FireWeapon()
 		} break;
 		
 		case WEAPON_NINJA:
-		{
-			// reset Hit objects
-			m_NumObjectsHit = 0;
-			
-			m_Ninja.m_ActivationDir = Direction;
-			m_Ninja.m_CurrentMoveTime = g_pData->m_Weapons.m_Ninja.m_Movetime * Server()->TickSpeed() / 1000;
-			m_Ninja.m_OldVelAmount = length(m_Core.m_Vel);
+		{			
+ 			if (ball)
+ 			{
+ 				ShootBall(normalize (vec2 (m_LatestInput.m_TargetX, m_LatestInput.m_TargetY)) *
+ 				static_cast<float> (g_Config.m_SvdbBallVelocity / 10.0f));  //20.75f;
+ 				m_ReloadTimer = g_pData->m_Weapons.m_aId[m_ActiveWeapon].m_Firedelay * Server()->TickSpeed() / 1000;	//	prevent shooting
+ 				return;
+ 			}
+ 			else
+ 			{		
+ 				m_AttackTick = Server()->Tick();
+ 				m_Ninja.m_ActivationDir = Direction;
+ 				m_Ninja.m_CurrentMoveTime = g_pData->m_Weapons.m_Ninja.m_Movetime * Server()->TickSpeed() / 1000;
+ 				m_Ninja.m_OldVelAmount = length(m_Core.m_Vel);
+ 				
+ 				// reset Hit objects
+ 				m_NumObjectsHit = 0;
+ 				
+ 				GameServer()->CreateSound(m_Pos, SOUND_NINJA_FIRE);
+ 			}
 
-			GameServer()->CreateSound(m_Pos, SOUND_NINJA_FIRE);
 		} break;
 		
 	}
@@ -544,7 +596,61 @@ void CCharacter::Tick()
 
 	m_Core.m_Input = m_Input;
 	m_Core.Tick(true);
-	
+ 
+ 	// hook the ball
+ 	if (!ball && (m_Core.m_HookState == HOOK_FLYING || m_Core.m_TriggeredEvents & (COREEVENT_HOOK_ATTACH_GROUND + COREEVENT_HOOK_HIT_NOHOOK)))
+ 	{
+ 		// Find the closest ball
+ 		CBall* closest_ball = NULL;
+ 		for (int i = 0; i < DB_MAX_BALLS; ++i)
+ 		{
+ 			CBall* b = static_cast<CGameControllerDB *>(GameServer()->m_pController)->balls[i];
+ 			if (b && !b->m_Carrier)
+ 			{
+ 				// It may be not a good idea to pass this to
+ 				// config, but we need some easy way to test
+ 				// these values
+ 				/* static */ vec2 ball_offset(g_Config.m_SvdbBallOffsetX, -g_Config.m_SvdbBallOffsetY);
+ 				vec2 ball_pos = b->m_Pos + ball_offset;
+ 				vec2 closest_point = closest_point_on_line(m_Core.m_Pos, m_Core.m_HookPos, ball_pos);
+ 				if (distance(ball_pos, closest_point) < g_Config.m_SvdbBallRadius && (!closest_ball || distance(m_Pos, ball_pos) < distance(m_Pos, closest_ball->m_Pos)))
+ 				{
+ 					closest_ball = b;
+ 				}
+ 			}
+ 		}
+ 		if (closest_ball)
+ 		{
+			// retract hook
+ 			m_Core.m_HookState = HOOK_RETRACTED;
+ 			m_Core.m_HookPos = m_Core.m_Pos;
+ 			CaptureBall(closest_ball);
+						
+ 			 // Score for catching a throw \o/
+			if (closest_ball->m_IsDead == 0 && closest_ball->m_Carrier->GetPlayer()->m_Team != closest_ball->m_LastCarrier->m_Team)
+			{
+				GameServer()->m_pController->m_aTeamscore[closest_ball->m_Carrier->GetPlayer()->m_Team]++;
+				closest_ball->m_Carrier->GetPlayer()->m_Score++;
+				closest_ball->m_IsDead = 1;
+
+				CCharacter * ch = closest_ball->m_LastCarrier->GetCharacter();
+				CPlayer * p = closest_ball->m_Carrier->GetPlayer();
+				
+				if (ch && p) {
+					ch->Die(p->m_ClientID, WEAPON_GAME);
+
+					int victimid = closest_ball->m_LastCarrier->m_ClientID;
+					int killerid = closest_ball->m_Carrier->GetPlayer()->m_ClientID;
+				
+					char Buf[128];
+					str_format(Buf, sizeof(Buf), "%s was caught out by %s!", Server()->ClientName(victimid), Server()->ClientName(killerid));
+				
+					GameServer()->SendBroadcast(Buf, -1);
+				}
+			}
+ 		}
+ 	}
+
 	// handle death-tiles and leaving gamelayer
 	if(GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||
 		GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||

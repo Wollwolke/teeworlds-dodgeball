@@ -32,6 +32,12 @@ public:
 	void OnPredictedInput(CNetObj_PlayerInput *NewInput);
 	void OnDisconnect(const char *pReason);
 	
+ 	//	flagball
+ 	int num_owngoals;	//	counter for own-goals
+ 	bool owngoal_warned;	//	own goal warning (only shown once)
+ 	int last_mousemove_tick;	//	tick counter for idle kicking
+ 	vec2 last_target_pos;	//	used to check for mouse movements (activity) 	
+	
 	void KillCharacter(int Weapon = WEAPON_GAME);
 	CCharacter *GetCharacter();
 	
@@ -95,7 +101,7 @@ public:
 		int m_Max;	
 	} m_Latency;
 	
-private:
+//private:
 	CCharacter *Character;
 	CGameContext *m_pGameServer;
 	

@@ -13,6 +13,7 @@
 #include "gamemodes/tdm.h"
 #include "gamemodes/ctf.h"
 #include "gamemodes/mod.h"
+#include "gamemodes/db.h"
 
 enum
 {
@@ -512,6 +513,18 @@ void CGameContext::OnClientEnter(int ClientID)
 	SendChat(-1, CGameContext::CHAT_ALL, aBuf); 
 
 	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' team=%d", ClientID, Server()->ClientName(ClientID), m_apPlayers[ClientID]->GetTeam());
+	
+ 	if (str_comp(m_pController->m_pGameType, "DB")==0)
+ 	{
+ 		// Send MOD-version string
+ 		str_format(aBuf, sizeof (aBuf), "DodgeBall-MOD version: %s", MOD_VERSION);
+ 		SendChatTarget(ClientID, aBuf);
+ 		
+ 		// Send welcome message
+ 		if (str_length(g_Config.m_SvdbWelcomeMessage))
+ 			SendChatTarget(ClientID, g_Config.m_SvdbWelcomeMessage);
+ 	}
+
 	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 	m_VoteUpdate = true;
@@ -601,6 +614,15 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		}
 		
 		SendChat(ClientID, Team, pMsg->m_pMessage);
+		
+		if(!str_comp(pMsg->m_pMessage, "/info") || !str_comp(pMsg->m_pMessage, ".info"))
+		{
+			SendChatTarget(ClientID, "Dodgeball Mod by Nilaya\nContact: johnb820@gmail.com");
+		}
+		else if(!str_comp(pMsg->m_pMessage, "/help") || !str_comp(pMsg->m_pMessage, "/rules"))
+		{
+			SendChatTarget(ClientID, "Score points by hitting another player with a ball without letting the ball bounce off of a wall. You can also score a point by catching another player's ball while it is in the air.");
+		}
 	}
 	else if(MsgID == NETMSGTYPE_CL_CALLVOTE)
 	{
@@ -1338,7 +1360,9 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	//players = new CPlayer[MAX_CLIENTS];
 
 	// select gametype
-	if(str_comp(g_Config.m_SvGametype, "mod") == 0)
+ 	if (str_comp(g_Config.m_SvGametype, "db") == 0)
+ 		m_pController = new CGameControllerDB(this);
+	else if(str_comp(g_Config.m_SvGametype, "mod") == 0)
 		m_pController = new CGameControllerMOD(this);
 	else if(str_comp(g_Config.m_SvGametype, "ctf") == 0)
 		m_pController = new CGameControllerCTF(this);

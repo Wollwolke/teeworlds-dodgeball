@@ -5,4 +5,6 @@
 #include "generated/nethash.c"
 #define GAME_VERSION "0.6.0"
 #define GAME_NETVERSION "0.6 " GAME_NETVERSION_HASH
+/*	Dodgeball-MOD version	*/
+#define MOD_VERSION "1.0"
 #endif

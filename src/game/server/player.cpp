@@ -4,6 +4,9 @@
 #include <engine/shared/config.h>
 #include "player.h"
 
+#include <string.h>
+#include "gamemodes/db.h"
+
 
 MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
 
@@ -17,6 +20,12 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_ScoreStartTick = Server()->Tick();
 	Character = 0;
 	this->m_ClientID = ClientID;
+	
+ 	num_owngoals = 0;
+ 	owngoal_warned = false;
+ 	last_mousemove_tick = Server()->Tick();
+ 	last_target_pos = vec2 (0, 0);
+
 	m_Team = GameServer()->m_pController->ClampTeam(Team);
 	m_SpectatorID = SPEC_FREEVIEW;
 	m_LastActionTick = Server()->Tick();
@@ -146,6 +155,11 @@ void CPlayer::OnDisconnect(const char *pReason)
 
 	if(Server()->ClientIngame(m_ClientID))
 	{
+		//	update leaving player in gamecontroller (flagball)
+		if (str_comp(GameServer()->m_pController->m_pGameType, "FB")==0)
+		{
+			static_cast<CGameControllerDB *> (GameServer()->m_pController)->OnDisconnect(this);
+		}
 		char aBuf[512];
 		if(pReason && *pReason)
 			str_format(aBuf, sizeof(aBuf),  "'%s' has left the game (%s)", Server()->ClientName(m_ClientID), pReason);

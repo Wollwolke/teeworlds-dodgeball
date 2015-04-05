@@ -62,7 +62,7 @@ MACRO_CONFIG_INT(SvRoundsPerMap, sv_rounds_per_map, 1, 1, 100, CFGFLAG_SERVER, "
 MACRO_CONFIG_INT(SvPowerups, sv_powerups, 1, 0, 1, CFGFLAG_SERVER, "Allow powerups like ninja")
 MACRO_CONFIG_INT(SvScorelimit, sv_scorelimit, 20, 0, 1000, CFGFLAG_SERVER, "Score limit (0 disables)")
 MACRO_CONFIG_INT(SvTimelimit, sv_timelimit, 0, 0, 1000, CFGFLAG_SERVER, "Time limit in minutes (0 disables)")
-MACRO_CONFIG_STR(SvGametype, sv_gametype, 32, "dm", CFGFLAG_SERVER, "Game type (dm, tdm, ctf)")
+MACRO_CONFIG_STR(SvGametype, sv_gametype, 32, "db", CFGFLAG_SERVER, "Game type (dm, tdm, ctf, db)")
 MACRO_CONFIG_INT(SvTournamentMode, sv_tournament_mode, 0, 0, 1, CFGFLAG_SERVER, "Tournament mode. When enabled, players joins the server as spectator")
 MACRO_CONFIG_INT(SvSpamprotection, sv_spamprotection, 1, 0, 1, CFGFLAG_SERVER, "Spam protection")
 
@@ -77,6 +77,13 @@ MACRO_CONFIG_INT(SvVoteSpectate, sv_vote_spectate, 1, 0, 1, CFGFLAG_SERVER, "All
 MACRO_CONFIG_INT(SvVoteKick, sv_vote_kick, 1, 0, 1, CFGFLAG_SERVER, "Allow voting to kick players")
 MACRO_CONFIG_INT(SvVoteKickMin, sv_vote_kick_min, 0, 0, MAX_CLIENTS, CFGFLAG_SERVER, "Minimum number of players required to start a kick vote")
 MACRO_CONFIG_INT(SvVoteKickBantime, sv_vote_kick_bantime, 5, 0, 1440, CFGFLAG_SERVER, "The time to ban a player if kicked by vote. 0 makes it just use kick")
+
+/*	dodgeball	*/
+MACRO_CONFIG_INT(SvdbBallVelocity, sv_db_ball_velocity, 300, 10, 3000, CFGFLAG_SERVER, "Velocity of the ball after it got shot (value/10.0 (default=400)).")
+MACRO_CONFIG_INT(SvdbBallOffsetX, sv_db_ball_offset_x, 0, 0, 1000, CFGFLAG_SERVER, "X offset of the hookable center of the ball with respect to the lower left corner of the image (default=0)")
+MACRO_CONFIG_INT(SvdbBallOffsetY, sv_db_ball_offset_y, 0, 0, 1000, CFGFLAG_SERVER, "Y offset of the hookable center of the ball with respect to the lower left corner of the image (default=30)")
+MACRO_CONFIG_INT(SvdbBallRadius, sv_db_ball_radius, 14, 0, 1000, CFGFLAG_SERVER, "Flag hookable radius (default=20)")
+MACRO_CONFIG_STR(SvdbWelcomeMessage, sv_db_welcome_message, 512, "", CFGFLAG_SERVER, "Message to display when clients join (default="").")
 
 // debug
 #ifdef CONF_DEBUG // this one can crash the server if not used correctly
