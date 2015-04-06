@@ -541,11 +541,12 @@ void CGameContext::OnClientEnter(int ClientID)
 	SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
 	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' team=%d", ClientID, Server()->ClientName(ClientID), m_apPlayers[ClientID]->GetTeam());
-	
+	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+
  	if (str_comp(m_pController->m_pGameType, "DB")==0)
  	{
  		// Send MOD-version string
- 		str_format(aBuf, sizeof (aBuf), "DodgeBall version: %s", DODGEBALL_VERSION);
+ 		str_format(aBuf, sizeof (aBuf), "Dodgeball version: %s", DODGEBALL_VERSION);
  		SendChatTarget(ClientID, aBuf);
 		SendChatTarget(ClientID, "Type /help for instructions or /about for mod information");
  		
@@ -553,8 +554,6 @@ void CGameContext::OnClientEnter(int ClientID)
  		if (str_length(g_Config.m_SvdbWelcomeMessage))
  			SendChatTarget(ClientID, g_Config.m_SvdbWelcomeMessage);
  	}
-
-	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 	m_VoteUpdate = true;
 }
