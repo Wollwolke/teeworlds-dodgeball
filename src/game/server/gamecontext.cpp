@@ -673,7 +673,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			{
 				SendChatTarget(ClientID, "Score points by hitting another player with a ball without letting the ball bounce off of a wall.");
 				SendChatTarget(ClientID, "You can also score a point by catching another player's ball while it is in the air.");
-			} else
+			}
+			else if(pMsg->m_pMessage[0] == '/')
+				SendChatTarget(ClientID, "Unknown command");
+			else 
 			SendChat(ClientID, Team, pMsg->m_pMessage);
 		}
 		else if(MsgID == NETMSGTYPE_CL_CALLVOTE)
