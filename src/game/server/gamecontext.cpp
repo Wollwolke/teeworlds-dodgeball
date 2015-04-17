@@ -659,16 +659,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			pPlayer->m_LastChat = Server()->Tick();
 
-      if(!str_comp("/help", pMsg->m_pMessage)){
-        SendChatTarget(ClientID, "The goal is to fill your health bar.");
-        SendChatTarget(ClientID, "Kill other player to make them drop hearts, then steal their life!");
-      }
-      else if(!str_comp("/about", pMsg->m_pMessage))
+			if(!str_comp("/help", pMsg->m_pMessage)){
+				SendChatTarget(ClientID, "The goal is to fill your health bar.");
+				SendChatTarget(ClientID, "Kill other player to make them drop hearts, then steal their life!");
+			}
+			else if(!str_comp("/about", pMsg->m_pMessage))
 			{
 				char Buf[128];
 				str_format(Buf, sizeof(Buf), "v.py version %s by Getkey aka PTI|July. Some code is from Teetime's zCatch.", VPY_VERSION);
 				SendChatTarget(ClientID, Buf);
-			} else
+			} else if(pMsg->m_pMessage[0] == '/')
+				SendChatTarget(ClientID, "Unknown command");
+			else
 				SendChat(ClientID, Team, pMsg->m_pMessage);
 		}
 		else if(MsgID == NETMSGTYPE_CL_CALLVOTE)

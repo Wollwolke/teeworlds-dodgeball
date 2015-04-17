@@ -15,8 +15,6 @@
 #include "gameworld.h"
 #include "player.h"
 
-const char VPY_VERSION[] = "0.9.1";
-
 /*
 	Tick
 		Game Context (CGameContext::tick)
