@@ -666,7 +666,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			else if(!str_comp("/about", pMsg->m_pMessage))
 			{
 				char Buf[128];
-				str_format(Buf, sizeof(Buf), "v.py version %s by Getkey aka PTI|July. Some code is from Teetime's zCatch.", VPY_VERSION);
+				str_format(Buf, sizeof(Buf), "v.py version %s by Getkey aka TiJuly. Some code is from Teetime's zCatch.", VPY_VERSION);
 				SendChatTarget(ClientID, Buf);
 			} else if(pMsg->m_pMessage[0] == '/')
 				SendChatTarget(ClientID, "Unknown command");

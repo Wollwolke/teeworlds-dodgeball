@@ -17,6 +17,5 @@ public:
 	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int WeaponID);
 	virtual void OnCharacterSpawn(class CCharacter *pChr);
 	virtual bool OnEntity(int Index, vec2 Pos);
-	virtual void DoWincheck();
 };
 #endif

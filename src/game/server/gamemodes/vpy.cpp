@@ -1,5 +1,5 @@
 /* v.py by Getkey. Some stuff is from zCatch by erd and Teetime (a diff can easily tell you what!).
- * Released under the same licence as the original Teeworlds, see licence.txt in the root of the distribution for more information.
+ * See licence.txt in the root of the distribution for more information.
  */
 
 #include <engine/shared/config.h>//server config
@@ -11,6 +11,7 @@ CGameController_vPy::CGameController_vPy(class CGameContext *pGameServer) : IGam
 {
 	m_pGameType = "v.py";
 	m_OldMode = g_Config.m_SvMode;
+	g_Config.m_SvScorelimit = 10;
 }
 
 void CGameController_vPy::Tick() {
@@ -50,10 +51,7 @@ int CGameController_vPy::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 			char Buf[23];
 			str_format(Buf, sizeof(Buf), "Chatkill: -%d point(s)", g_Config.m_SvChatkillPenalty);
 			GameServer()->SendBroadcast(Buf, pKiller->GetCID());
-
-		}/* else {
-			pKiller->m_Score++;
-		}*/
+		}
 
 		CPickup *H = new CPickup(&GameServer()->m_World, POWERUP_HEALTH);
 		H->m_Pos = pVictim->m_Pos;
@@ -114,21 +112,4 @@ bool CGameController_vPy::OnEntity(int Index, vec2 Pos)
 		m_aaSpawnPoints[2][m_aNumSpawnPoints[2]++] = Pos;
 
 	return false;
-}
-
-void CGameController_vPy::DoWincheck()
-{
-	if(m_GameOverTick == -1 && !m_Warmup && !GameServer()->m_World.m_ResetRequested)
-	{
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(GameServer()->m_apPlayers[i])
-			{
-				if(GameServer()->m_apPlayers[i]->m_Score == 10)
-				{
-					IGameController::EndRound();//usual EndRound
-				}
-			}
-		}
-	}
 }
