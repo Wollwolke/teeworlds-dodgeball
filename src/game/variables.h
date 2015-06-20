@@ -94,11 +94,14 @@ MACRO_CONFIG_INT(DbgTuning, dbg_tuning, 0, 0, 1, CFGFLAG_CLIENT, "")
 //v.py
 MACRO_CONFIG_INT(SvMode, sv_mode, 1, 1, 5, CFGFLAG_SERVER, "1 - Instagib; 2 - Everything; 3 - Hammerparty; 4 - Grenade; 5 - Ninja")
 
+MACRO_CONFIG_INT(SvHeartGravity, sv_heart_gravity, 10, 0, 1000, CFGFLAG_SERVER, "Determine the speed at which the hearts will fall to the ground. This is a percentage of the gravity.")
+MACRO_CONFIG_INT(SvHeartRebound, sv_heart_rebound, 30, 0, 100, CFGFLAG_SERVER, "Determine how higt the hearts will rebound. This is a percentage of the last drop height.")
 
 MACRO_CONFIG_INT(SvAnticamper, sv_anticamper, 2, 0, 2, CFGFLAG_SERVER, "0 disables, 1 enables anticamper in all modes and 2 only in Instagib")
 MACRO_CONFIG_INT(SvAnticamperFreeze, sv_anticamper_freeze, 7, 0, 15, CFGFLAG_SERVER, "If a player should freeze on camping (and how long) or die")
 MACRO_CONFIG_INT(SvAnticamperTime, sv_anticamper_time, 10, 5, 120, CFGFLAG_SERVER, "How long to wait till the player dies/freezes")
 MACRO_CONFIG_INT(SvAnticamperRange, sv_anticamper_range, 200, 0, 1000, CFGFLAG_SERVER, "Distance how far away the player must move to escape anticamper")
+
 MACRO_CONFIG_INT(SvGrenadeEndlessAmmo, sv_grenade_endless_ammo, 1, 0, 1, CFGFLAG_SERVER, "Endless ammo for grenade (only mode 4).")
 MACRO_CONFIG_INT(SvWeaponsAmmo, sv_weapons_ammo, 7, 5, 10, CFGFLAG_SERVER, "Default amount of ammo for all weapons in mode 2 or grenade in mode 4. Your ammo will regenerate after some while")
 

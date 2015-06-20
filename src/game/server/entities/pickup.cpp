@@ -3,6 +3,7 @@
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 #include "pickup.h"
+#include <engine/shared/config.h>
 
 CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PICKUP)
@@ -18,6 +19,7 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType)
 
 void CPickup::Reset()
 {
+	m_Vel = vec2(0,0);
 	if (g_pData->m_aPickups[m_Type].m_Spawndelay > 0)
 		m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * g_pData->m_aPickups[m_Type].m_Spawndelay;
 	else
@@ -116,6 +118,11 @@ void CPickup::Tick()
 			m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * RespawnTime;
 		}
 	}
+
+	m_Vel.y += GameServer()->m_World.m_Core.m_Tuning.m_Gravity * g_Config.m_SvHeartGravity/100;
+	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2 (PickupPhysSize, PickupPhysSize), (float)g_Config.m_SvHeartRebound/100);
+	if(GameServer()->Collision()->GetCollisionAt(m_Pos.x, m_Pos.y)&CCollision::COLFLAG_DEATH || GameLayerClipped(m_Pos)) Destroy();//heart hit a death-tile or left the game layer
+	//TODO: move by explosions
 }
 
 void CPickup::TickPaused()

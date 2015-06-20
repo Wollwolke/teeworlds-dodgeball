@@ -18,6 +18,7 @@ public:
 	virtual void Snap(int SnappingClient);
 
 private:
+	vec2 m_Vel;
 	int m_Type;
 	int m_Subtype;
 	int m_SpawnTick;
