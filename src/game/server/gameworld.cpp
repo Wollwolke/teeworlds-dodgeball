@@ -59,6 +59,20 @@ int CGameWorld::FindEntities(vec2 Pos, float Radius, CEntity **ppEnts, int Max, 
 	return Num;
 }
 
+bool CGameWorld::IntersectPickup(vec2 Pos0, vec2 Pos1, float Radius, int Type)
+{
+	if(Type < 0 || Type >= NUM_ENTTYPES)
+		return false;
+
+	for(CEntity *pEnt = m_apFirstEntityTypes[Type];	pEnt; pEnt = pEnt->m_pNextTypeEntity)
+	{
+		if(distance(pEnt->m_Pos, closest_point_on_line(Pos0, Pos1, pEnt->m_Pos)) < Radius+pEnt->m_ProximityRadius)
+			return true;
+	}
+
+	return false;
+}
+
 void CGameWorld::InsertEntity(CEntity *pEnt)
 {
 #ifdef CONF_DEBUG

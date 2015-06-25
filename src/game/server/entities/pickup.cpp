@@ -122,7 +122,6 @@ void CPickup::Tick()
 	m_Vel.y += GameServer()->m_World.m_Core.m_Tuning.m_Gravity * g_Config.m_SvHeartGravity/100;
 	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2 (PickupPhysSize, PickupPhysSize), (float)g_Config.m_SvHeartRebound/100);
 	if(GameServer()->Collision()->GetCollisionAt(m_Pos.x, m_Pos.y)&CCollision::COLFLAG_DEATH || GameLayerClipped(m_Pos)) Destroy();//heart hit a death-tile or left the game layer
-	//TODO: move by explosions
 }
 
 void CPickup::TickPaused()

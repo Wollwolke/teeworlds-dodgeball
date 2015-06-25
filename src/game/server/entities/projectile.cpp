@@ -64,10 +64,11 @@ void CProjectile::Tick()
 	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &CurPos, 0);
 	CCharacter *OwnerChar = GameServer()->GetPlayerChar(m_Owner);
 	CCharacter *TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, 6.0f, CurPos, OwnerChar);
+	bool heartCollision = GameServer()->m_World.IntersectPickup(PrevPos, CurPos, 6.0f, CGameWorld::ENTTYPE_PICKUP);
 
 	m_LifeSpan--;
 
-	if(TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
+	if(TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos) || heartCollision)
 	{
 		if(m_LifeSpan >= 0 || m_Weapon == WEAPON_GRENADE)
 			GameServer()->CreateSound(CurPos, m_SoundImpact);

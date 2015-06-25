@@ -14,6 +14,7 @@
 #include "gamemodes/ctf.h"
 #include "gamemodes/mod.h"*/
 #include "gamemodes/vpy.h"
+#include "entities/pickup.h"
 
 enum
 {
@@ -146,6 +147,23 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 			if((int)Dmg)
 				apEnts[i]->TakeDamage(ForceDir*Dmg*2, (int)Dmg, Owner, Weapon);
 		}
+
+		//incoming: awfull copypaste
+		CPickup *picks[1024];
+		int NumTwo = m_World.FindEntities(Pos, Radius, (CEntity**)picks, 1024, CGameWorld::ENTTYPE_PICKUP);
+		for(int i = 0; i < NumTwo; i++)
+		{
+			vec2 Diff = picks[i]->m_Pos - Pos;
+			vec2 ForceDir(0,1);
+			float l = length(Diff);
+			if(l)
+				ForceDir = normalize(Diff);
+			l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
+			float Dmg = 6 * l;
+			if((int)Dmg)
+				picks[i]->m_Vel += ForceDir*Dmg;
+		}
+
 	}
 }
 

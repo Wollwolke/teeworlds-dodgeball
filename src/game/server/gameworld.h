@@ -68,6 +68,8 @@ public:
 	*/
 	int FindEntities(vec2 Pos, float Radius, CEntity **ppEnts, int Max, int Type);
 
+	bool IntersectPickup(vec2 Pos0, vec2 Pos1, float Radius, int Type);
+
 	/*
 		Function: interserct_CCharacter
 			Finds the closest CCharacter that intersects the line.

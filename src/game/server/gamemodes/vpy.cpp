@@ -3,7 +3,7 @@
  */
 
 #include <engine/shared/config.h>//server config
-#include <game/server/player.h>//GameServer()
+#include <game/server/gamecontext.h>//GameServer()
 #include <game/server/entities/pickup.h>//hearts
 #include "vpy.h"
 
