@@ -17,6 +17,7 @@ public:
 	virtual void TickPaused();
 	virtual void Snap(int SnappingClient);
 	vec2 m_Vel;
+	bool m_Activated;
 
 private:
 	int m_Type;

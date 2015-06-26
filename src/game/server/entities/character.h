@@ -68,8 +68,9 @@ public:
 
 	void Freeze(int Tick);
 	int m_FreezeTicks;
-  
-  int m_Health;//v.py
+
+	int m_Health;//v.py
+	int m_ActiveWeapon;//v.py
 
 private:
 	// player controlling this character
@@ -90,7 +91,6 @@ private:
 
 	} m_aWeapons[NUM_WEAPONS];
 
-	int m_ActiveWeapon;
 	int m_LastWeapon;
 	int m_QueuedWeapon;
 

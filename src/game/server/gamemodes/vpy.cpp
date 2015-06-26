@@ -54,6 +54,7 @@ int CGameController_vPy::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 		}
 
 		CPickup *H = new CPickup(&GameServer()->m_World, POWERUP_HEALTH);
+		if(Weapon != WEAPON_GRENADE && Weapon != WEAPON_NINJA) H->m_Activated = true;
 		H->m_Pos = pVictim->m_Pos;
 	} else {// Suicide
 		pVictim->IncreaseHealth(-g_Config.m_SvKillPenalty);

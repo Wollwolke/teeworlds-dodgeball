@@ -11,6 +11,7 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType)
 	m_Type = Type;
 	m_Subtype = SubType;
 	m_ProximityRadius = PickupPhysSize;
+	m_Activated = false;
 
 	Reset();
 
@@ -51,12 +52,14 @@ void CPickup::Tick()
 		switch (m_Type)
 		{
 			case POWERUP_HEALTH:
-				if(pChr->IncreaseHealth(1))
-				{//v.py
-					pChr->GetPlayer()->m_Score++;
-					GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH);
-					Destroy();
-				}
+				if(pChr->m_ActiveWeapon == WEAPON_NINJA && !m_Activated) m_Activated = true;//do not get heart directly after killing a tee
+				else
+					if(pChr->IncreaseHealth(1))
+					{
+						pChr->GetPlayer()->m_Score++;
+						GameServer()->CreateSound(m_Pos, SOUND_PICKUP_HEALTH);
+						Destroy();
+					}
 				break;
 
 			case POWERUP_ARMOR:

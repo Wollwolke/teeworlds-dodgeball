@@ -6,5 +6,5 @@
 #define GAME_VERSION "0.6.4"
 #define GAME_NETVERSION "0.6 " GAME_NETVERSION_HASH
 static const char GAME_RELEASE_VERSION[8] = {'0', '.', '6', '.', '4', 0};
-#define VPY_VERSION "1.1.0"
+#define VPY_VERSION "1.1.1"
 #endif
