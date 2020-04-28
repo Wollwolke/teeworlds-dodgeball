@@ -1,4 +1,4 @@
-/* Dodgeball by Nilaya. Maintained by Getkey.*/
+/* Dodgeball by Nilaya. Updated by Getkey, Wollwolke.*/
 /* Original thread https://www.teeworlds.com/forum/viewtopic.php?id=8652 */
 
 #include <string.h>
