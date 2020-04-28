@@ -78,7 +78,7 @@ void CCharacterCore::Tick(bool UseInput)
 {
 	float PhysSize = 28.0f;
 	m_TriggeredEvents = 0;
-	m_MoveRestrictions = m_pCollision->GetMoveRestrictions(m_Pos, PhysSize / 2 + 5);
+	m_MoveRestrictions = m_pCollision->GetMoveRestrictions(m_Pos, PhysSize / 2.f + 4);
 
 	// get ground state
 	bool Grounded = false;
