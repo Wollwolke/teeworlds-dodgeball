@@ -24,9 +24,17 @@ Additional Server settings for the mod:
 | sv_db_ball_radius     | 14      | 0   | 1000 | Hitbox radius of the balls                                                 |
 | sv_db_welcome_message | ""      | -   | -    | Message to display when clients join                                       |
 
+## Added Features
+
+- Support for UTF-8 characters in player names
+  - the current implementation doesn't look for confusables
+- Support for DDNet-like stopper-tiles [(Tile 62)](https://wiki.ddnet.tw/game-tiles/entities/) in the front layer
+
 ## Compiling
 
 Just follow the official guides on the [Teeworlds Website](https://www.teeworlds.com/?page=docs&wiki=hacking).
+
+>This mod is based on Teeworlds v0.6.4, so for compilation you need bam 4.0.
 
 ## Docker Image
 
