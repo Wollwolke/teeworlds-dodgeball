@@ -36,26 +36,6 @@
 	#include <windows.h>
 #endif
 
-static const char *StrLtrim(const char *pStr)
-{
-	while(*pStr && *pStr >= 0 && *pStr <= 32)
-		pStr++;
-	return pStr;
-}
-
-static void StrRtrim(char *pStr)
-{
-	int i = str_length(pStr);
-	while(i >= 0)
-	{
-		if(pStr[i] < 0 || pStr[i] > 32)
-			break;
-		pStr[i] = 0;
-		i--;
-	}
-}
-
-
 CSnapIDPool::CSnapIDPool()
 {
 	Reset();
@@ -294,11 +274,16 @@ int CServer::TrySetClientName(int ClientID, const char *pName)
 	char aTrimmedName[64];
 
 	// trim the name
-	str_copy(aTrimmedName, StrLtrim(pName), sizeof(aTrimmedName));
-	StrRtrim(aTrimmedName);
+	str_copy(aTrimmedName, str_utf8_skip_whitespaces(pName), sizeof(aTrimmedName));
+	str_utf8_trim_right(aTrimmedName);
 
 	// check for empty names
 	if(!aTrimmedName[0])
+		return -1;
+
+	// check for names starting with /, as they can be abused to make people
+	// write chat commands
+	if (aTrimmedName[0] == '/')
 		return -1;
 
 	// check if new and old name are the same
@@ -333,23 +318,13 @@ void CServer::SetClientName(int ClientID, const char *pName)
 	if(!pName)
 		return;
 
-	char aCleanName[MAX_NAME_LENGTH];
-	str_copy(aCleanName, pName, sizeof(aCleanName));
-
-	// clear name
-	for(char *p = aCleanName; *p; ++p)
-	{
-		if(*p < 32)
-			*p = ' ';
-	}
-
-	if(TrySetClientName(ClientID, aCleanName))
+	if(TrySetClientName(ClientID, pName))
 	{
 		// auto rename
+		char aNameTry[MAX_NAME_LENGTH];
 		for(int i = 1;; i++)
 		{
-			char aNameTry[MAX_NAME_LENGTH];
-			str_format(aNameTry, sizeof(aCleanName), "(%d)%s", i, aCleanName);
+			str_format(aNameTry, sizeof(aNameTry), "(%d)%s", i, pName);
 			if(TrySetClientName(ClientID, aNameTry) == 0)
 				break;
 		}
