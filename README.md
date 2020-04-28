@@ -29,6 +29,7 @@ Additional Server settings for the mod:
 - Support for UTF-8 characters in player names
   - the current implementation doesn't look for confusables
 - Support for DDNet-like stopper-tiles [(Tile 62)](https://wiki.ddnet.tw/game-tiles/entities/) in the front layer
+  - the two included Dodgeball Maps are updated to use this tile
 
 ## Compiling
 
