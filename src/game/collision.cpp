@@ -12,6 +12,49 @@
 #include <game/layers.h>
 #include <game/collision.h>
 
+vec2 ClampVel(int MoveRestriction, vec2 Vel)
+{
+	if (Vel.x > 0 && (MoveRestriction & CANTMOVE_RIGHT))
+	{
+		Vel.x = 0;
+	}
+	if (Vel.x < 0 && (MoveRestriction & CANTMOVE_LEFT))
+	{
+		Vel.x = 0;
+	}
+	if (Vel.y > 0 && (MoveRestriction & CANTMOVE_DOWN))
+	{
+		Vel.y = 0;
+	}
+	if (Vel.y < 0 && (MoveRestriction & CANTMOVE_UP))
+	{
+		Vel.y = 0;
+	}
+	return Vel;
+}
+
+u_int8_t CCollision::GetMoveRestrictions(vec2 position, float offset)
+{
+	u_int8_t result = 0;
+	if (GetCollisionAt(position.x + offset, position.y) & CCollision::COLFLAG_STOP)
+	{
+		result |= CANTMOVE_RIGHT;
+	}
+	if (GetCollisionAt(position.x - offset, position.y) & CCollision::COLFLAG_STOP)
+	{
+		result |= CANTMOVE_LEFT;
+	}
+	if (GetCollisionAt(position.x, position.y - offset) & CCollision::COLFLAG_STOP)
+	{
+		result |= CANTMOVE_UP;
+	}
+	if (GetCollisionAt(position.x, position.y + offset) & CCollision::COLFLAG_STOP)
+	{
+		result |= CANTMOVE_DOWN;
+	}
+	return result;
+}
+
 CCollision::CCollision()
 {
 	m_pTiles = 0;
@@ -44,6 +87,9 @@ void CCollision::Init(class CLayers *pLayers)
 			break;
 		case TILE_NOHOOK:
 			m_pTiles[i].m_Index = COLFLAG_SOLID|COLFLAG_NOHOOK;
+			break;
+		case TILE_STOP:
+			m_pTiles[i].m_Index = COLFLAG_STOP;
 			break;
 		default:
 			m_pTiles[i].m_Index = 0;

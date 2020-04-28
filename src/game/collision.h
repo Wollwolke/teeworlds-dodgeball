@@ -5,6 +5,16 @@
 
 #include <base/vmath.h>
 
+enum
+{
+	CANTMOVE_LEFT = 1 << 0,
+	CANTMOVE_RIGHT = 1 << 1,
+	CANTMOVE_UP = 1 << 2,
+	CANTMOVE_DOWN = 1 << 3,
+};
+
+vec2 ClampVel(int MoveRestriction, vec2 Vel);
+
 class CCollision
 {
 	class CTile *m_pTiles;
@@ -21,6 +31,7 @@ public:
 		COLFLAG_SOLID=1,
 		COLFLAG_DEATH=2,
 		COLFLAG_NOHOOK=4,
+		COLFLAG_STOP = 8,
 	};
 
 	CCollision();
@@ -34,6 +45,7 @@ public:
 	void MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces);
 	void MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, float Elasticity);
 	bool TestBox(vec2 Pos, vec2 Size);
+	u_int8_t GetMoveRestrictions(vec2 position, float offset);
 };
 
 #endif

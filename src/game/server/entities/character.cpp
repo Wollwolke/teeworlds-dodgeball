@@ -613,6 +613,8 @@ void CCharacter::Tick()
 
 	m_Core.m_Input = m_Input;
 	m_Core.Tick(true);
+
+	HandleStopper();
  
  	// hook the ball
  	if (!ball && (m_Core.m_HookState == HOOK_FLYING || m_Core.m_TriggeredEvents & (COREEVENT_HOOK_ATTACH_GROUND + COREEVENT_HOOK_HIT_NOHOOK)))
@@ -982,4 +984,15 @@ void CCharacter::Snap(int SnappingClient)
 	}
 
 	pCharacter->m_PlayerFlags = GetPlayer()->m_PlayerFlags;
+}
+
+void CCharacter::HandleStopper()
+{
+	u_int8_t moveRestrictions = GameServer()->Collision()->GetMoveRestrictions(m_Pos, m_ProximityRadius / 2.f + 4);
+	if (moveRestrictions)
+	{
+		if (moveRestrictions & CANTMOVE_DOWN)
+			m_Core.m_Jumped = 0;
+		m_Core.m_Vel = ClampVel(moveRestrictions, m_Core.m_Vel);
+	}
 }
