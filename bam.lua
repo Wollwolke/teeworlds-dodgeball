@@ -171,6 +171,9 @@ function build(settings)
 			settings.link.frameworks:Add("Carbon")
 			settings.link.frameworks:Add("AppKit")
 		else
+			if ScriptArgs['static-libstdcpp'] then
+				settings.link.flags:Add("-static-libstdc++")
+			end
 			settings.link.libs:Add("pthread")
 		end
 		
