@@ -19,11 +19,12 @@ FROM frolvlad/alpine-glibc:latest
 
 RUN addgroup -S tw_server && adduser -S -H tw_server -G tw_server && \
     mkdir -p "/app/data/mapres" && \
-    echo 'add_path $DATADIR' > "/app/storage.cfg" && echo 'add_path $CURRENTDIR' >> "/app/storage.cfg" && \
+    echo 'add_path $DATADIR' > "/app/storage.cfg" && \
     chown -R tw_server:tw_server "/app/"
 
-COPY --from=builder --chown=tw_server:tw_server "/code/data/maps/" "/app/data/maps"
-COPY --from=builder --chown=tw_server:tw_server "/code/db_srv" "/code/autoexec.cfg" "/code/entrypoint.sh" "/app/"
+COPY --from=builder --chown=tw_server:tw_server "/code/data/maps/" "/app/data/maps/"
+COPY --from=builder --chown=tw_server:tw_server "/code/autoexec.cfg" "/app/data/"
+COPY --from=builder --chown=tw_server:tw_server "/code/db_srv" "/code/entrypoint.sh" "/app/"
 
 EXPOSE 8303/udp
 
