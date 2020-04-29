@@ -41,7 +41,7 @@ Just follow the official guides on the [Teeworlds Website](https://www.teeworlds
 
 To just run the latest version, type
 
-    docker run -d -p 8303:8303/udp --name dodgeball wollwolke/teeworlds/dodgeball
+    docker run -d -p 8303:8303/udp --name dodgeball wollwolke/teeworlds-dodgeball
 
 In order to be able to add maps or change the config file, add the `-v` argument to map a directory on your host to the container's `/app/data` directory:
 
