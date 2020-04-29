@@ -663,7 +663,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if(!str_comp(pMsg->m_pMessage, "/about"))
 			{
-				SendChatTarget(ClientID, "Dodgeball Mod by Nilaya. Maintained by Getkey aka PTI|July.");
+				SendChatTarget(ClientID, "Dodgeball Mod by Nilaya. Updated by Getkey aka PTI|July");
+				SendChatTarget(ClientID, "Current version by Wollwolke.");
 			}
 			else if(!str_comp(pMsg->m_pMessage, "/help"))
 			{
