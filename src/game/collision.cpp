@@ -33,9 +33,9 @@ vec2 ClampVel(int MoveRestriction, vec2 Vel)
 	return Vel;
 }
 
-u_int8_t CCollision::GetMoveRestrictions(vec2 position, float offset)
+int CCollision::GetMoveRestrictions(vec2 position, float offset)
 {
-	u_int8_t result = 0;
+	int result = 0;
 	if (GetCollisionAt(position.x + offset, position.y) & CCollision::COLFLAG_STOP)
 	{
 		result |= CANTMOVE_RIGHT;

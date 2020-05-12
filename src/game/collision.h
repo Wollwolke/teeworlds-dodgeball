@@ -45,7 +45,7 @@ public:
 	void MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces);
 	void MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, float Elasticity);
 	bool TestBox(vec2 Pos, vec2 Size);
-	u_int8_t GetMoveRestrictions(vec2 position, float offset);
+	int GetMoveRestrictions(vec2 position, float offset);
 };
 
 #endif

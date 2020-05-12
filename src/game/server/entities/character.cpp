@@ -988,7 +988,7 @@ void CCharacter::Snap(int SnappingClient)
 
 void CCharacter::HandleStopper()
 {
-	u_int8_t moveRestrictions = GameServer()->Collision()->GetMoveRestrictions(m_Pos, m_ProximityRadius / 2.f + 4);
+	int moveRestrictions = GameServer()->Collision()->GetMoveRestrictions(m_Pos, m_ProximityRadius / 2.f + 4);
 	if (moveRestrictions)
 	{
 		if (moveRestrictions & CANTMOVE_DOWN)
